@@ -31,6 +31,15 @@ single: true
     <div id="disqus_thread" aria-live="polite">{% include post/disqus_thread.html %}</div>
   </section>
 {% endif %}
+<<<<<<< HEAD
+{% if site.duoshuo_short_name and site.duoshuo_comments == true and page.comments == true %}
+  <section>
+    <h1>Comments</h1>
+    <div id="comments" aria-live="polite">{% include post/duoshuo.html %}</div>
+  </section>
+{% endif %}
+=======
+>>>>>>> 90d0d8519bfa46aa5e348320cd9e327c206daf46
 </div>
 {% unless page.sidebar == false %}
 <aside class="sidebar">

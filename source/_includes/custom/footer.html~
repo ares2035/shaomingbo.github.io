@@ -1,4 +1,9 @@
 <p>
+<<<<<<< HEAD
+  Copyright &copy; {{ site.time | date: "%Y" }} - {{ site.author }} <!---
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> -->
+=======
   Copyright &copy; {{ site.time | date: "%Y" }} - {{ site.author }} -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+>>>>>>> 90d0d8519bfa46aa5e348320cd9e327c206daf46
 </p>
