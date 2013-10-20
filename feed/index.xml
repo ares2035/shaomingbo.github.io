@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[mingbo]]></title>
-  <link href="http://mingbo.de/atom.xml" rel="self"/>
+  <link href="http://mingbo.de/feed" rel="self"/>
   <link href="http://mingbo.de/"/>
   <updated>2013-10-20T19:50:14+08:00</updated>
   <id>http://mingbo.de/</id>

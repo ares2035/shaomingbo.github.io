@@ -1,15 +1,39 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://shaomingbo.github.io/blog/archives/</loc>
-        <lastmod>2013-10-20T14:33:00+08:00</lastmod>
+        <loc>http://mingbo.de/blog/2013/03/13/the-note-of-procrastination/</loc>
+        <lastmod>2013-10-20T19:42:26+08:00</lastmod>
     </url>
     <url>
-        <loc>http://shaomingbo.github.io/</loc>
-        <lastmod>2013-10-20T14:33:00+08:00</lastmod>
+        <loc>http://mingbo.de/blog/2013/04/14/comment-is-cheap/</loc>
+        <lastmod>2013-10-20T19:49:41+08:00</lastmod>
     </url>
     <url>
-        <loc>http://shaomingbo.github.io/robots.txt</loc>
-        <lastmod>2013-10-20T14:33:00+08:00</lastmod>
+        <loc>http://mingbo.de/blog/</loc>
+        <lastmod>2013-10-20T19:49:41+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://mingbo.de/blog/archives/</loc>
+        <lastmod>2013-10-20T19:49:41+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://mingbo.de/</loc>
+        <lastmod>2013-10-20T19:49:41+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://mingbo.de/404.html</loc>
+        <lastmod>2013-10-20T15:25:41+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://mingbo.de/robots.txt</loc>
+        <lastmod>2013-10-20T15:25:41+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://mingbo.de/feed/index.xml</loc>
+        <lastmod>2013-10-20T15:08:43+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://mingbo.de/soulsaunter/</loc>
+        <lastmod>2013-10-20T18:09:52+08:00</lastmod>
     </url>
 </urlset>
