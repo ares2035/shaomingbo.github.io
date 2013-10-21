@@ -19,7 +19,8 @@ footer: true
 *   尽可能高效的利用设备计算资源，做你满意的微博助手
 
 ###下载
-[![Google Play下载](https://ssl.gstatic.com/accounts/services/mail/buttons/google_play_zh-CN.png)](https://play.google.com/store/apps/details?id=de.mingbo.soulsaunter)
+*	[![Google Play下载](https://ssl.gstatic.com/accounts/services/mail/buttons/google_play_zh-CN.png)](https://play.google.com/store/apps/details?id=de.mingbo.soulsaunter)
+*	[本地下载](http://202.114.40.160:8088/images/Soulsaunter.apk)
 
 ---
 ###Update
