@@ -1,0 +1,57 @@
+---
+layout: post
+title: "Activity 心经"
+date: 2013-11-03 11:33
+comments: true
+categories: android笔记
+---
+Android 四大组件中，Activty 最为常见。这里对Activity 的相关知识进行梳理，以供日后查阅。
+
+###生命周期
+![生命周期](https://developer.android.com/images/training/basics/basic-lifecycle.png)
+
+-   六种状态构成了生命周期金字塔
+-   位于顶端的Resumed 状态有着与用户交互的特权
+-   金字塔的第二层对于用户来说可视或部分可视
+-   金字塔的第三层虽然存在于系统内存，但对于用户来说不可视
+-   从箭头的指向来看，**Resumed 与Paused 之间的转换最为活跃**，为了保证UI流畅，这里应尽可能的放一些轻巧的代码
+-   从Activity 对象的角度来讲，只有**三种状态持续存在**：Resumed，Paused，Stopped
+-   Activity 的Paused 状态对于自身而言是被前台的Activity(或窗口）遮挡了一部分，对于用户来讲这个Activity 只有部分可见。**在这种状态下，Activity 对象依然停留在内存里，也同时被windows manager 引用着**；Activity 的Stopped状态与Paused 状态类似，**除了**更彻底的不可见**之外**，此时此刻这个Activity已经不被windows manager 引用了
+-   当Activity 的Paused 或Stopped状态遭遇系统内存吃紧：系统要么温柔的调用`finish()` 逐个清理Activity，要么粗暴的结束掉该对象所在的进程
+
+###资源管理
+-   鉴于**内存吃紧**的不可预见，我们应该在`onStop()`中释放掉那些容易造成内存泄漏的资源
+-   关于`onPause()`方法更具体的建议
+        1.  停止动画等消耗CPU 的操作
+        2.  注销广播监听器、传感器监听器等影响电池寿命的资源
+        3.  仅当用户需要的情况下，提交未保存的状态。为了保证界面的平滑切换，应避免在这里调用CPU-Intensive 的操作（如，写数据库），而应将其移至之后的stop方法中
+-    ` onSaveInstanceState() `默认的会保存Activity 的视图结构，如Checkbox 是否被选中，Edittext 中的编辑文字，但前提是为每个控件都配备有一个独特的ID
+-    当且仅当有数据需要恢复的时候，` onRestoreInstanceState()`才被系统调用，且一般在`onStart()`之后
+-    可以使用`finish()`以及`finishActivity(int requestCode)`来关闭Activity，但除非你确定必须这么做，**不然最好将这项工作交由系统来完成**
+-    一般情况下，如果一个应用退到后台超过30分钟，系统会清理掉该堆栈中的acitivties。但如果`android:alwaysRetainTaskState`属性被设置为true，用户重返应用的时候总会获得上次Activity的状态。这一点对于浏览器应用相当有用
+-    如果属性`android:noHistory`被设置为true，那么当用户从这个activity 离开的时候，就会自动调用`finish()`。因此，无法从任务堆栈中找回该activity 的历史轨迹了
+-    一般来讲，`onDestroy()` 的执行应该在`onPause()`或者`onStop()`之后。但如果，你在`onCreate()`中直接调用`finish()`，则系统会直接跳过他们调用`onDestroy()`的
+
+###运行模式
+-   Task 是由一组为了完成某项工作的Activities 组成，它们**不受**进程或应用的约束，体现的是Activity 之间**相互调用和执行**的关系
+-   Activity 的运行模式有四种:standard，singleTop，singleTask，singleInstance。除了Standard 之外的三种模式对于activity均有不同程度的复用
+-   standard 与singleTop 类似，在程序运行的过程中，这两种模式的activity 会有多个实例出现在一个或多个Task 中的任意位置。但二者之间有着细微的差别：singleTop 模式下的activty 如果在目标task 的顶部，对于新收到的intent会使用` onNewIntent() `回调来响应；其他情况下和standard 模式一样，对于每一个新收到的intent 都对应一个新的实例。
+-   singleTask 与singleInstance 类似，都只能出现在一个task stack 内，且始终呆在stack 的根部，对于整个设备来说它们只有一个实例。除此之外，它们都使用`onNewIntent()` 来响应创建后收到的intent。但两者之间有着细微的差别：singleTask 允许引入新的activity 来组建task，而singleInstance 永远自成一派。很显然，singleInstance适合内存消耗较多的界面，如播放器、浏览器等。
+
+###其他
+-   如果项目中没有一个Activity 被设置为`MAIN action` 或者`LAUNCHER category`，那么桌面就不会显示相应的图标
+-   程序运行过程中，如遇到配置变动，则会引起activity 重启，这是系统自动适配的行为。
+-   重启后，其数据需要得到重新填充。如果数据量较小，则可以依赖`onSaveInstanceState() `以及`onRestoreInstanceState()`这两个回调接口；反之，则需要特殊对待：要么规避系统的重启行为，自己来做适配工作；要么在配置变更的时候通过接口`onRetainNonConfigurationInstance()`来保存数据对象，待到重启之后使用`getLastNonConfigurationInstance()`来恢复相关数据
+
+
+
+---
+
+###参考资料
+-   [Starting an Activity](https://developer.android.com/training/basics/activity-lifecycle/starting.html)
+-   [Pausing and Resuming an Activity](https://developer.android.com/training/basics/activity-lifecycle/pausing.html)
+-   [Stopping and Restarting an Activity](https://developer.android.com/training/basics/activity-lifecycle/stopping.html)
+-   [Recreating an Activity](https://developer.android.com/training/basics/activity-lifecycle/recreating.html)
+-   [Activities](https://developer.android.com/guide/components/activities.html)
+-   [android:launchMode](https://developer.android.com/guide/topics/manifest/activity-element.html)
+-   [Handling Runtime Changes](https://developer.android.com/guide/topics/resources/runtime-changes.html)
