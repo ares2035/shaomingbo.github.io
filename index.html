@@ -9,7 +9,11 @@
   <meta name="author" content="shaomingbo">
 
   
-  <meta name="description" content="Service 作为一个“看不见”的android 组件，天然的就应该为Android 程序去处理那些费事费力的苦活。但即使这样，作为四大组件之一的它依然运行在主线程上。也就是说，那些理所当然的“负担”如果直接运行在Service 上必然会影响程序的UI 性能。因此， &hellip;">
+  <meta name="description" content="这是一个常见的listview 资源文件的写法。 listview资源文件 1
+2
+3
+4
+5 &lt;ListView android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content& &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +82,71 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/04/listview-re-getview/">Listview 子控件重复加载</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-04T20:45:00+08:00" pubdate data-updated="true">Nov 4<span>th</span>, 2013</time>
+        
+
+          | <a href="/blog/2013/11/04/listview-re-getview/#comments">Comments</a>
+         
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>这是一个常见的listview 资源文件的写法。</p>
+
+<figure class='code'><figcaption><span>listview资源文件 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>    <span class="nt">&lt;ListView</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/listView&quot;</span>
+</span><span class='line'>    <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意到<code>android:layout_height</code> 被设置为<code>wrap_content</code>，这似乎很合理。但如果我们留心的话可以发现，与这个listview 关联的adapter对象的<code>getView()</code>方法被<strong>重复调用了好几遍</strong>!这对于那些依赖listview 展示大量数据的应用来说，绝对是性能打击。</p>
+
+<h3>解决方案：</h3>
+
+<p>将这个属性设置为<code>match_parent</code> 或者固定的数值</p>
+
+<h3>原因</h3>
+
+<p>通过查看<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/AbsListView.java">AbsListView</a> 的代码，不难发现<code>mAdapter</code> 调用<code>getView()</code> 方法只有在无法从<code>RecycleBin</code>中获得子控件的时候才发生。从实验的log 来看，<code>getView()</code>方法被重复调用了3次。按道理来说通过前几次的调用，<code>RecycleBin</code>里应该已经有这个子控件了啊，为什么还会重复调用呢？</p>
+
+<p>继续查看<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/ListView.java">Listview</a> 的代码，答案在<code>onMeasure()</code>方法里：由于<code>wrap_content</code> 并没有指定一个固定值，<strong>系统需要通过尝试、计算来满足<code>wrap_content</code></strong>。每次尝试都会调用<code>onMeasure()</code>，进而调用父类的<code>obtainView()</code>，以至于最终调用<code>getView()</code>了</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -451,6 +520,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/11/04/listview-re-getview/">Listview 子控件重复加载</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/11/04/services-note/">Service 心经</a>
