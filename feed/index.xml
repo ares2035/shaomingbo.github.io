@@ -4,7 +4,7 @@
   <title><![CDATA[mingbo]]></title>
   <link href="http://mingbo.de/feed" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2013-11-04T21:06:23+08:00</updated>
+  <updated>2013-11-05T21:00:27+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[shaomingbo]]></name>
@@ -40,11 +40,9 @@
 
 <p>将这个属性设置为<code>match_parent</code> 或者固定的数值</p>
 
-<h3>原因</h3>
+<h3>原因：</h3>
 
-<p>通过查看<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/AbsListView.java">AbsListView</a> 的代码，不难发现<code>mAdapter</code> 调用<code>getView()</code> 方法只有在无法从<code>RecycleBin</code>中获得子控件的时候才发生。从实验的log 来看，<code>getView()</code>方法被重复调用了3次。按道理来说通过前几次的调用，<code>RecycleBin</code>里应该已经有这个子控件了啊，为什么还会重复调用呢？</p>
-
-<p>继续查看<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/ListView.java">Listview</a> 的代码，答案在<code>onMeasure()</code>方法里：由于<code>wrap_content</code> 并没有指定一个固定值，<strong>系统需要通过尝试、计算来满足<code>wrap_content</code></strong>。每次尝试都会调用<code>onMeasure()</code>，进而调用父类的<code>obtainView()</code>，以至于最终调用<code>getView()</code>了</p>
+<p>通过分析<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/AbsListView.java">AbsListView</a> 以及<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/ListView.java">Listview</a>的代码，发现答案应该在<code>onMeasure()</code>方法里：由于<code>wrap_content</code> 并没有指定一个固定值，<strong>系统需要通过尝试layout来满足<code>wrap_content</code></strong>。每次尝试都会调用<code>onMeasure()</code>,<code>layoutChildren()</code>,使得<code>getView()</code>被重复调用</p>
 ]]></content>
   </entry>
   
