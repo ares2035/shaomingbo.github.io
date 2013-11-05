@@ -20,10 +20,8 @@ categories: android笔记
 ###解决方案：
 将这个属性设置为`match_parent` 或者固定的数值
 
-###原因
-通过查看[AbsListView][1] 的代码，不难发现`mAdapter` 调用`getView()` 方法只有在无法从`RecycleBin`中获得子控件的时候才发生。从实验的log 来看，`getView()`方法被重复调用了3次。按道理来说通过前几次的调用，`RecycleBin`里应该已经有这个子控件了啊，为什么还会重复调用呢？
-
-继续查看[Listview][2] 的代码，答案在`onMeasure()`方法里：由于`wrap_content` 并没有指定一个固定值，**系统需要通过尝试、计算来满足`wrap_content`**。每次尝试都会调用`onMeasure()`，进而调用父类的`obtainView()`，以至于最终调用`getView()`了
+###原因：
+通过分析[AbsListView][1] 以及[Listview][2]的代码，发现答案应该在`onMeasure()`方法里：由于`wrap_content` 并没有指定一个固定值，**系统需要通过尝试layout来满足`wrap_content`**。每次尝试都会调用`onMeasure()`,`layoutChildren()`,使得`getView()`被重复调用
 
 
 [1]: https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/AbsListView.java
