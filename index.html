@@ -9,11 +9,8 @@
   <meta name="author" content="shaomingbo">
 
   
-  <meta name="description" content="这是一个常见的listview 资源文件的写法。 listview资源文件 1
-2
-3
-4
-5 &lt;ListView android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content& &hellip;">
+  <meta name="description" content="在《Listview 子控件重复加载》中谈到了onMeasure()方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充： 绘制过程是一个控件树遍历的过程，从根控件开始
+ViewGroup负责通知它的子视图，View负责自绘，按照顺序，父视图先于子视图绘制 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -82,6 +79,79 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/08/how-android-draws-views/">视图的绘制</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-08T14:48:00+08:00" pubdate data-updated="true">Nov 8<span>th</span>, 2013</time>
+        
+
+          | <a href="/blog/2013/11/08/how-android-draws-views/#comments">Comments</a>
+         
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>在<a href="http://mingbo.de/blog/2013/11/04/listview-re-getview/">《Listview 子控件重复加载》</a>中谈到了<code>onMeasure()</code>方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充：</p>
+
+<ul>
+<li>绘制过程是一个控件树遍历的过程，从根控件开始</li>
+<li><code>ViewGroup</code>负责通知它的子视图，<code>View</code>负责自绘，按照顺序，父视图先于子视图绘制</li>
+<li>绘制实际上是2个自顶向下的过程：measure 和layout。</li>
+<li>经过measure 之后，每个<code>View</code>都会保存自己的尺寸，而在layout 过程中父视图会使用这些尺寸来摆放子视图</li>
+<li><code>View</code>对象的高宽会受到父视图的限制，以保证整个视图的正常显示</li>
+<li>父视图会<strong>多次调用子视图的measure方法</strong>。比如：父视图会先计算不受约束的情况下，子视图的大小；如果子视图过大或者过小，父视图都会指定一个具体的值</li>
+<li>Measure 过程还会涉及<code>ViewGroup.LayoutParams</code>以及<code>MeasureSpec</code>的设置</li>
+<li><code>ViewGroup.LayoutParams</code>被View 对象用来告诉其父控件，自己想如何被计算以及摆放，最基本的是指定长宽：
+
+<ol>
+<li>MATCH_PARENT, which means the View wants to be as big as its parent (minus padding)</li>
+<li>WRAP_CONTENT, which means that the View wants to be just big enough to enclose its content (plus padding).</li>
+<li>具体数值</li>
+</ol>
+</li>
+<li>MeasureSpec 指定一种计算模式：
+
+<ol>
+<li>UNSPECIFIED: This is used by a parent to determine the desired dimension of a child View.</li>
+<li>EXACTLY: This is used by the parent to impose an exact size on the child.</li>
+<li>AT MOST: This is used by the parent to impose a maximum size on the child.</li>
+</ol>
+</li>
+</ul>
+
+
+<h3>参考资料</h3>
+
+<ul>
+<li><a href="https://developer.android.com/guide/topics/ui/how-android-draws.html">How Android Draws Views</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -520,6 +590,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/11/08/how-android-draws-views/">视图的绘制</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/11/04/listview-re-getview/">Listview 子控件重复加载</a>
       </li>
     
@@ -533,10 +607,6 @@
     
       <li class="post">
         <a href="/blog/2013/04/14/comment-is-cheap/">廉价的吐槽</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/03/13/the-note-of-procrastination/">读《拖延心理学》</a>
       </li>
     
   </ul>

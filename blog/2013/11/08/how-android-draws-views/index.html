@@ -5,15 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Listview 子控件重复加载 - mingbo</title>
+  <title>视图的绘制 - mingbo</title>
   <meta name="author" content="shaomingbo">
 
   
-  <meta name="description" content="这是一个常见的listview 资源文件的写法。 listview资源文件 1
-2
-3
-4
-5 &lt;ListView android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content& &hellip;">
+  <meta name="description" content="在《Listview 子控件重复加载》中谈到了onMeasure()方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充： 绘制过程是一个控件树遍历的过程，从根控件开始
+ViewGroup负责通知它的子视图，View负责自绘，按照顺序，父视图先于子视图绘制 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -22,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://mingbo.de/blog/2013/11/04/listview-re-getview">
+  <link rel="canonical" href="http://mingbo.de/blog/2013/11/08/how-android-draws-views">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="mingbo" type="application/atom+xml">
@@ -85,7 +82,7 @@
   
   <header>
     
-      <h1 class="entry-title">Listview 子控件重复加载</h1>
+      <h1 class="entry-title">视图的绘制</h1>
     
     
       <p class="meta">
@@ -101,7 +98,7 @@
   
 
 
-<time datetime="2013-11-04T20:45:00+08:00" pubdate data-updated="true">Nov 4<span>th</span>, 2013</time>
+<time datetime="2013-11-08T14:48:00+08:00" pubdate data-updated="true">Nov 8<span>th</span>, 2013</time>
         
 
           | <a href="#comments">Comments</a>
@@ -111,31 +108,41 @@
   </header>
 
 
-<div class="entry-content"><p>这是一个常见的listview 资源文件的写法。</p>
+<div class="entry-content"><p>在<a href="http://mingbo.de/blog/2013/11/04/listview-re-getview/">《Listview 子控件重复加载》</a>中谈到了<code>onMeasure()</code>方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充：</p>
 
-<figure class='code'><figcaption><span>listview资源文件 </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'>    <span class="nt">&lt;ListView</span>
-</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
-</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
-</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/listView&quot;</span>
-</span><span class='line'>    <span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li>绘制过程是一个控件树遍历的过程，从根控件开始</li>
+<li><code>ViewGroup</code>负责通知它的子视图，<code>View</code>负责自绘，按照顺序，父视图先于子视图绘制</li>
+<li>绘制实际上是2个自顶向下的过程：measure 和layout。</li>
+<li>经过measure 之后，每个<code>View</code>都会保存自己的尺寸，而在layout 过程中父视图会使用这些尺寸来摆放子视图</li>
+<li><code>View</code>对象的高宽会受到父视图的限制，以保证整个视图的正常显示</li>
+<li>父视图会<strong>多次调用子视图的measure方法</strong>。比如：父视图会先计算不受约束的情况下，子视图的大小；如果子视图过大或者过小，父视图都会指定一个具体的值</li>
+<li>Measure 过程还会涉及<code>ViewGroup.LayoutParams</code>以及<code>MeasureSpec</code>的设置</li>
+<li><code>ViewGroup.LayoutParams</code>被View 对象用来告诉其父控件，自己想如何被计算以及摆放，最基本的是指定长宽：
+
+<ol>
+<li>MATCH_PARENT, which means the View wants to be as big as its parent (minus padding)</li>
+<li>WRAP_CONTENT, which means that the View wants to be just big enough to enclose its content (plus padding).</li>
+<li>具体数值</li>
+</ol>
+</li>
+<li>MeasureSpec 指定一种计算模式：
+
+<ol>
+<li>UNSPECIFIED: This is used by a parent to determine the desired dimension of a child View.</li>
+<li>EXACTLY: This is used by the parent to impose an exact size on the child.</li>
+<li>AT MOST: This is used by the parent to impose a maximum size on the child.</li>
+</ol>
+</li>
+</ul>
 
 
-<p>注意到<code>android:layout_height</code> 被设置为<code>wrap_content</code>，这似乎很合理。但如果我们留心的话可以发现，与这个listview 关联的adapter对象的<code>getView()</code>方法被<strong>重复调用了好几遍</strong>!这对于那些依赖listview 展示大量数据的应用来说，绝对是性能打击。</p>
+<h3>参考资料</h3>
 
-<h3>解决方案：</h3>
+<ul>
+<li><a href="https://developer.android.com/guide/topics/ui/how-android-draws.html">How Android Draws Views</a></li>
+</ul>
 
-<p>将这个属性设置为<code>match_parent</code> 或者固定的数值</p>
-
-<h3>原因：</h3>
-
-<p>通过分析<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/AbsListView.java">AbsListView</a> 以及<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/ListView.java">Listview</a>的代码，发现答案应该在<code>onMeasure()</code>方法里：由于<code>wrap_content</code> 并没有指定一个固定值，<strong>系统需要通过尝试layout来满足<code>wrap_content</code></strong>。每次尝试都会调用<code>onMeasure()</code>,<code>layoutChildren()</code>,使得<code>getView()</code>被重复调用</p>
 </div>
 
 
@@ -158,7 +165,7 @@
   
 
 
-<time datetime="2013-11-04T20:45:00+08:00" pubdate data-updated="true">Nov 4<span>th</span>, 2013</time>
+<time datetime="2013-11-08T14:48:00+08:00" pubdate data-updated="true">Nov 8<span>th</span>, 2013</time>
       
 
 <span class="categories">
@@ -179,10 +186,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2013/11/04/services-note/" title="Previous Post: Service 心经">&laquo; Service 心经</a>
+        <a class="basic-alignment left" href="/blog/2013/11/04/listview-re-getview/" title="Previous Post: Listview 子控件重复加载">&laquo; Listview 子控件重复加载</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2013/11/08/how-android-draws-views/" title="Next Post: 视图的绘制">视图的绘制 &raquo;</a>
       
     </p>
   </footer>
