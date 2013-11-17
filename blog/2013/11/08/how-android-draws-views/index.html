@@ -6,12 +6,11 @@
 <head>
   <meta charset="utf-8">
   <title>视图的绘制 - mingbo</title>
-  <meta name="author" content="shaomingbo">
+  <meta name="author" content="邵明博">
 
   
-  <meta name="description" content="在《Listview 子控件重复加载》中谈到了onMeasure()方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充： 绘制过程是一个控件树遍历的过程，从根控件开始
-ViewGroup负责通知它的子视图，View负责自绘，按照顺序，父视图先于子视图绘制 &hellip;">
-  
+<meta name="description" content="关于视图绘制 的学习笔记">
+  <meta name="keywords" content="android, measure, layout, view, viewgroup">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -151,7 +150,7 @@ ViewGroup负责通知它的子视图，View负责自绘，按照顺序，父视�
       
   
 
-<span class="byline author vcard">Posted by <span class="fn">shaomingbo</span></span>
+<span class="byline author vcard">Posted by <span class="fn">邵明博</span></span>
 
       
 
@@ -189,6 +188,8 @@ ViewGroup负责通知它的子视图，View负责自绘，按照顺序，父视�
         <a class="basic-alignment left" href="/blog/2013/11/04/listview-re-getview/" title="Previous Post: Listview 子控件重复加载">&laquo; Listview 子控件重复加载</a>
       
       
+        <a class="basic-alignment right" href="/blog/2013/11/17/processes-nand-threads-notes/" title="Next Post: 进程与线程">进程与线程 &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -222,6 +223,10 @@ var duoshuoQuery = {short_name:"shaomingbo"};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/11/17/processes-nand-threads-notes/">进程与线程</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/11/08/how-android-draws-views/">视图的绘制</a>
       </li>
     
@@ -235,10 +240,6 @@ var duoshuoQuery = {short_name:"shaomingbo"};
     
       <li class="post">
         <a href="/blog/2013/11/03/activity-note/">Activity 心经</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/04/14/comment-is-cheap/">廉价的吐槽</a>
       </li>
     
   </ul>
@@ -255,7 +256,7 @@ var duoshuoQuery = {short_name:"shaomingbo"};
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - shaomingbo <!---
+  Copyright &copy; 2013 - 邵明博 <!---
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> -->
 </p>
 
