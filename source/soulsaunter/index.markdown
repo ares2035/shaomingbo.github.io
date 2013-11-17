@@ -5,6 +5,8 @@ date: 2013-10-20 18:06
 comments: true
 sharing: true
 footer: true
+description: 一款简洁好用的新浪微博客户端
+keywords: app, android, 微博, 客户端, 应用
 ---
 ###简介
 *   帝傲狮是我这个菜鸟程序员的第一个业余项目

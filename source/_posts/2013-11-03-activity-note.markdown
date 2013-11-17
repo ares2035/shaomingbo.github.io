@@ -4,6 +4,8 @@ title: "Activity 心经"
 date: 2013-11-03 11:33
 comments: true
 categories: android笔记
+description: 关于activity 的学习笔记
+keywords: android, activity, 生命周期, 资源管理, 运行模式, 其他
 ---
 Android 四大组件中，Activty 最为常见。这里对Activity 的相关知识进行梳理，以供日后查阅。
 

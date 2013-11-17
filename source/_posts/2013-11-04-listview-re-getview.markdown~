@@ -4,6 +4,8 @@ title: "Listview 子控件重复加载"
 date: 2013-11-04 20:45
 comments: true
 categories: android笔记
+description:关于listview 子控件重复加载的反思
+keywords:android, listview, 重绘, measure, layout, wrap_content
 ---
 
 这是一个常见的listview 资源文件的写法。
@@ -20,7 +22,7 @@ categories: android笔记
 ###解决方案：
 将这个属性设置为`match_parent` 或者固定的数值
 
-###原因
+###原因：
 通过分析[AbsListView][1] 以及[Listview][2]的代码，发现答案应该在`onMeasure()`方法里：由于`wrap_content` 并没有指定一个固定值，**系统需要通过尝试layout来满足`wrap_content`**。每次尝试都会调用`onMeasure()`,`layoutChildren()`,使得`getView()`被重复调用
 
 

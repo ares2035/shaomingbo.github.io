@@ -4,6 +4,8 @@ title: "Listview 子控件重复加载"
 date: 2013-11-04 20:45
 comments: true
 categories: android笔记
+description: 关于listview 子控件重复加载的反思
+keywords: android, listview, 重绘, measure, layout, wrap_content
 ---
 
 这是一个常见的listview 资源文件的写法。

@@ -3,7 +3,9 @@ layout: post
 title: "视图的绘制"
 date: 2013-11-08 14:48
 comments: true
-categories: 
+categories: android笔记
+description:关于视图绘制 的学习笔记
+keywords:android, measure, layout, view, viewgroup
 ---
 
 在[《Listview 子控件重复加载》](http://mingbo.de/blog/2013/11/04/listview-re-getview/)中谈到了`onMeasure()`方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充：

@@ -4,6 +4,8 @@ title: "Service 心经"
 date: 2013-11-04 15:21
 comments: true
 categories: android笔记
+description:关于service 的学习笔记
+keywords:android, service, started Service, bounded Service, AIDL, IntentService
 ---
 Service 作为一个“看不见”的android 组件，天然的就应该为Android 程序去处理那些费事费力的苦活。但即使这样，作为四大组件之一的它依然运行在主线程上。也就是说，那些理所当然的“负担”如果**直接运行在Service 上必然会影响程序的UI 性能**。因此，我们通常需要与之对应的后台线程来完成工作。
 
@@ -65,6 +67,6 @@ Service 作为一个“看不见”的android 组件，天然的就应该为Andr
 -   [AIDL](https://developer.android.com/guide/components/aidl.html)
 
 ###参考代码
--   [LocalService.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/LocalService.java)
--   [LocalServiceActivities.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/LocalServiceActivities.java)
+-   [MessengerService.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/MessengerService.java)
+-   [MessengerServiceActivities.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/MessengerServiceActivities.java)
 
