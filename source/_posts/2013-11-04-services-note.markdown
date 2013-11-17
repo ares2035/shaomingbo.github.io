@@ -65,6 +65,6 @@ Service 作为一个“看不见”的android 组件，天然的就应该为Andr
 -   [AIDL](https://developer.android.com/guide/components/aidl.html)
 
 ###参考代码
--   [LocalService.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/LocalService.java)
--   [LocalServiceActivities.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/LocalServiceActivities.java)
+-   [MessengerService.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/MessengerService.java)
+-   [MessengerServiceActivities.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/MessengerServiceActivities.java)
 
