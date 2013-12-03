@@ -4,10 +4,11 @@
 
 url: http://mingbo.de
 title: mingbo
-subtitle: 屌丝程序员的胡思乱想
-author: shaomingbo
+subtitle: 菜鸟程序员的胡思乱想
+author: 邵明博
 simple_search: http://google.com/search
-description:
+description: 邵明博的个人博客, 记录所有我愿意分享的精彩内容
+keywords: 
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -20,6 +21,7 @@ subscribe_rss: /atom.xml
 subscribe_email:
 # RSS feeds can list your email address if you like
 email:
+
 
 # ----------------------- #
 #    Jekyll & Plugins     #
