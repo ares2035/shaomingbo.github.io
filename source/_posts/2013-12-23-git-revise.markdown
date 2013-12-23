@@ -133,7 +133,6 @@ description: 总结了git使用过程中常用的命令
 2.  `git push <remote> --force`和上一条效果一样，只不过会强制执行
 3.  `git push <remote> --tags`将本地标签全部推送到远程仓库去
 
-----
 ##参考资料
 -   [Git Tutorials](https://www.atlassian.com/git/tutorial/)
 -   [Learn git branching](http://pcottle.github.io/learnGitBranching/)
@@ -141,11 +140,11 @@ description: 总结了git使用过程中常用的命令
 ##附图
 -   图1 a fast-forward merge
 
-![fast-forward](https://gp1.wac.edgecastcdn.net/8029C4/wac-small/wac/landing/git/tutorial/git-branches/pageSections/00/contentFullWidth/0/tabs/02/pageSections/01/contentFullWidth/00/imageBinary/git-tutorial_merge-fast-forward.png)
+![fast-forward merge 示意图](/images/20131223/git-revise-merge-fast-forward.png)
 
 -	图2 a 3-way merge
 
-![3-way](https://gp1.wac.edgecastcdn.net/8029C4/wac-small/wac/landing/git/tutorial/git-branches/pageSections/00/contentFullWidth/0/tabs/02/pageSections/01/contentFullWidth/02/imageBinary/git-tutorial_merge-three-way.png)
+![3-way merge 示意图](/images/20131223/git-revise-merge-three-way.png)
 
 
 
