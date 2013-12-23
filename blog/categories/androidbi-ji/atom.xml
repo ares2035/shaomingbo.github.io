@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android笔记 | mingbo]]></title>
   <link href="http://mingbo.de/blog/categories/androidbi-ji/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2013-12-23T12:06:50+08:00</updated>
+  <updated>2013-12-23T17:14:21+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -18,29 +18,35 @@
     <link href="http://mingbo.de/blog/2013/12/03/debug-over-wifi/"/>
     <updated>2013-12-03T20:04:00+08:00</updated>
     <id>http://mingbo.de/blog/2013/12/03/debug-over-wifi</id>
-    <content type="html"><![CDATA[<p>使用无线调试对于我来讲，只有一个理由：爱惜手机电池。长时间的调试过程，使得我们的爱机必须通过USB 与电脑相连。长此以往，手机电池容易变得非常不经用。</p>
+    <content type="html"><![CDATA[<p>使用无线调试对于我来讲，只有一个理由：爱惜手机电池。长时间的调试过程，使得我们的爱机必须通过USB 与电脑相连。长此以往，手机电池就会变得非常不经用。</p>
 
-<p>很早之前，以为只有获得ROOT 权限的手机才能开启这个功能，直到有一天被我发现statckoverflow 上的一个<a href="http://stackoverflow.com/questions/2604727/how-can-i-connect-to-android-with-adb-over-tcp">帖子</a>。之所以会有这个错觉，是因为看到Google Play上提供的相关APP 都有这个权限声明。</p>
+<p>很早之前，以为只有获得ROOT 权限的手机才能开启这个功能，直到有一天被我发现statckoverflow 上的一个<a href="http://stackoverflow.com/questions/2604727/how-can-i-connect-to-android-with-adb-over-tcp">帖子</a>。（之所以会有这个错觉，是因为看到Google Play上提供的相关APP 都有root权限的声明）。那么，这里我就分别总结一下，不同情况下该如何使用<strong>无线adb</strong></p>
 
-<h3>拥有ROOT 权限</h3>
+<h2>如果手机拥有ROOT 权限</h2>
 
-<p>开启adb shell之后，输入以下命令。
-<code>
+<p>在shell 里执行以下命令：
+<code>bash 开启adb无线调试
 su
 setprop service.adb.tcp.port 5555
 stop adbd
 start adbd
 </code>
-这也是大部分完成无线调试APP的核心基础：在应用内使用Process 对象来执行这些命令。其中<code>start/stop adbd</code>，你可以通过手动开启/关闭调试模式来完成同样的目的。如果希望回到usb 模式，则应该将<code>tcp port</code>修改回-1。</p>
+这也是大部分完成无线调试APP的核心基础：在应用内使用Process 对象来执行这些命令。其中<code>start/stop adbd</code>，你可以通过手动开启/关闭调试模式来完成同样的目的。如果希望回到usb 模式，则应该将<code>tcp.port</code>修改回-1。</p>
 
-<h3>没有ROOT 权限</h3>
-
-<p>你必须有一根USB线，通过电脑连接手机，在命令行中执行<code>adb tcpip 5555</code>即可开启无线ADB 调试。恢复USB调试则使用<code>adb usb</code>即可。</p>
-
-<h3>连接手机</h3>
+<h2>如果手机没有ROOT 权限</h2>
 
 <ul>
-<li>确保电脑和手机在同一网段</li>
+<li>事情并没有因为少一个权限而变得麻烦</li>
+<li>首先将手机通过USB连接到PC</li>
+<li>在命令行中执行<code>adb tcpip 5555</code>，即可开启无线adb了</li>
+<li>想要恢复有线adb时，在保持手机与PC连接的前提下，命令行中执行<code>adb usb</code>即可</li>
+</ul>
+
+
+<h2>连接与断开手机</h2>
+
+<ul>
+<li>开启无线adb后，想要通过WIFI连接手机，请先确保电脑和手机在同一网段</li>
 <li>连接：adb connect android-device-ip</li>
 <li>终止：adb disconnect</li>
 </ul>
@@ -66,7 +72,7 @@ start adbd
 </ul>
 
 
-<h3>Foreground process</h3>
+<h2>Foreground process</h2>
 
 <p>优先级最高，即使在系统内存吃紧的情况下不到万不得已，是不会杀这类进程的。如果这类进程被杀，通常是因为用户界面卡得不能动弹而被迫执行的。这类进程所包含的组件通常满足以下特征：</p>
 
@@ -77,7 +83,7 @@ start adbd
 5.  BroadcastReceiver 正在执行`onReceived()`
 </code></pre>
 
-<h3>Visible process</h3>
+<h2>Visible process</h2>
 
 <p>优先级次之，系统在保证Foreground process 的前提下，保证这类进程的运行。这类进程虽不直接与用户交互，但用户能在界面上看到与之相关的组件。这些组件通常会有以下特征：</p>
 
@@ -85,25 +91,25 @@ start adbd
 2.  service 绑定的activity 处于paused 状态
 </code></pre>
 
-<h3>Service process</h3>
+<h2>Service process</h2>
 
 <p>虽然没有与用户直接交互，但它们所做做的事情与用户息息相关。所以系统会按照优先级，在保留上述进程的前提下，尽可能的保留此类进程。不符合上面描述的Service 进程都属于Service Process。</p>
 
-<h3>Background process</h3>
+<h2>Background process</h2>
 
 <p>随时会被系统回收。为了提升用户体验，系统使用LRU 缓存维护这类进程，使得用户最近使用的进程推迟回收。这类进程通常只持有不可视组件，如paused 状态下的activity。</p>
 
-<h3>Empty process</h3>
+<h2>Empty process</h2>
 
 <p>这类进程的存在仅仅只是为了让启动进程看起来更快一些，也因此更容易被系统回收。</p>
 
-<h3>android:multiprocess 属性</h3>
+<h2>android:multiprocess 属性</h2>
 
 <p>默认情况下，该设置为false，表示该组件会在定义组件的应用进程中运行。当第三方应用调用该组件时，会有2个进程启动：第三方应用以及定义组件的应用。</p>
 
 <p>如果该属性设置为true，表示允许该组件“嫁”出去：当第三方应用调用该组件时，会直接在该进程中构造组件。这么做会让组件在整个系统中的数量增加，但与调用者之间的交互更为紧密。值得一提的是，在实际开发中，这么做需要考虑并发的复杂性。</p>
 
-<h3>零散的知识点</h3>
+<h2>零散的知识点</h2>
 
 <ul>
 <li>一个进程如果包含多个组件，那么，该进程取组件中优先级最高的作为自己的优先级</li>
@@ -113,7 +119,7 @@ start adbd
 </ul>
 
 
-<h3>参考资料</h3>
+<h2>参考资料</h2>
 
 <ul>
 <li><a href="https://developer.android.com/guide/components/processes-and-threads.html">Processes and Threads</a></li>
@@ -157,7 +163,7 @@ start adbd
 </ul>
 
 
-<h3>参考资料</h3>
+<h2>参考资料</h2>
 
 <ul>
 <li><a href="https://developer.android.com/guide/topics/ui/how-android-draws.html">How Android Draws Views</a></li>
@@ -197,11 +203,11 @@ start adbd
 
 <p>注意到<code>android:layout_height</code> 被设置为<code>wrap_content</code>，这似乎很合理。但如果我们留心的话可以发现，与这个listview 关联的adapter对象的<code>getView()</code>方法被<strong>重复调用了好几遍</strong>!这对于那些依赖listview 展示大量数据的应用来说，绝对是性能打击。</p>
 
-<h3>解决方案：</h3>
+<h2>解决方案：</h2>
 
 <p>将这个属性设置为<code>match_parent</code> 或者固定的数值</p>
 
-<h3>原因：</h3>
+<h2>原因：</h2>
 
 <p>通过分析<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/AbsListView.java">AbsListView</a> 以及<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/ListView.java">Listview</a>的代码，发现答案应该在<code>onMeasure()</code>方法里：由于<code>wrap_content</code> 并没有指定一个固定值，<strong>系统需要通过尝试layout来满足<code>wrap_content</code></strong>。每次尝试都会调用<code>onMeasure()</code>,<code>layoutChildren()</code>,使得<code>getView()</code>被重复调用</p>
 ]]></content>
@@ -218,7 +224,7 @@ start adbd
 
 <p>总的来说，Service 有两种形式：<strong>命令启动类(Started)</strong> 与 <strong>绑定类(Bound)</strong>。两种形式之间并不总是非此既彼的关系，同一个应用的同一个Service 可以同时满足这两种形式，而这一点完全取决于应用逻辑。</p>
 
-<h3>命令启动类（started）的Service</h3>
+<h2>命令启动类（started）的Service</h2>
 
 <ul>
 <li>一旦被启动，如果没有其他组件调用<code>stopService()</code>而且自己也没有调用<code>stopSelf(int)</code>，那么它将会一直运行下去（除非系统内存吃紧）</li>
@@ -235,7 +241,7 @@ start adbd
 </ul>
 
 
-<h3>简化的命令服务IntentServie</h3>
+<h2>简化的命令服务IntentServie</h2>
 
 <p>如果你不希望Service 处理并发请求，那么IntentService 是不二的选择。之所以这么说，是你几乎只需要三步就可以实现一个为你完成后台操作的单线程服务：1，继承IntetnService；2，覆盖<code>onHandleIntent()</code>；3，在构造函数中初始化父类。那么IntentService 会帮你做到：
 &ndash;   创建一个后台线程
@@ -244,7 +250,7 @@ start adbd
 
 <p>如果希望自己覆盖某些Service 的方法，<strong>那么一定要记得调用super</strong>，否则会导致一些意想不到的结果出现。</p>
 
-<h3>绑定类(Bound)服务</h3>
+<h2>绑定类(Bound)服务</h2>
 
 <ul>
 <li><code>IBinder</code> 表示客户端与服务端交互的接口</li>
@@ -268,9 +274,9 @@ start adbd
 </ul>
 
 
-<p><img src="https://developer.android.com/images/fundamentals/service_binding_tree_lifecycle.png" alt="服务的生命周期" /></p>
+<p><img src="/images/20131104/service_binding_tree_lifecycle.png" alt="服务的生命周期" /></p>
 
-<h3>前台服务</h3>
+<h2>前台服务</h2>
 
 <ul>
 <li>前台服务能够极大的提升不被杀掉的概率</li>
@@ -279,7 +285,7 @@ start adbd
 </ul>
 
 
-<h3>AIDL</h3>
+<h2>AIDL</h2>
 
 <ul>
 <li>Stub 继承自Binder 还实现了aidl 中的接口，除此之外还提供类似<code>asInterface(IBinder)</code>的辅助方法</li>
@@ -291,7 +297,7 @@ start adbd
 </ul>
 
 
-<h3>参考资料</h3>
+<h2>参考资料</h2>
 
 <ul>
 <li><a href="https://developer.android.com/guide/components/services.html">Services</a></li>
@@ -300,7 +306,7 @@ start adbd
 </ul>
 
 
-<h3>参考代码</h3>
+<h2>参考代码</h2>
 
 <ul>
 <li><a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/MessengerService.java">MessengerService.java</a></li>

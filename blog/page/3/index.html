@@ -1,120 +1,99 @@
 
-<!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<!DOCTYPE HTML>
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>mingbo</title>
-  <meta name="author" content="邵明博">
+	<meta charset="utf-8">
+	<title>mingbo</title>
+	<meta name="author" content="邵明博">
 
-  
-<meta name="description" content="邵明博的个人博客, 记录所有我愿意分享的精彩内容">
-  
+	
+	<meta name="description" content="Android 四大组件中，Activty 最为常见。这里对Activity 的相关知识进行梳理，以供日后查阅。 生命周期 六种状态构成了生命周期金字塔
+位于顶端的Resumed 状态有着与用户交互的特权
+金字塔的第二层对于用户来说可视或部分可视
+金字塔的第三层虽然存在于系统内存， &hellip;">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  
-  <link rel="canonical" href="http://mingbo.de/blog/page/3">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="mingbo" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
-  
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-37619750-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
-
-
+	<link href="/atom.xml" rel="alternate" title="mingbo" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script async="true" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
 </head>
 
-<body   >
-  <header role="banner"><hgroup>
-  <h1><a href="/">mingbo</a></h1>
-  
-    <h2>菜鸟程序员的胡思乱想</h2>
-  
-</hgroup>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">mingbo</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+	<li><a href="/soulsaunter">帝傲狮</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+	<li><a href="/soulsaunter">帝傲狮</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:mingbo.de">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+    
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:mingbo.de">
+	</form>
+</nav>
 
 </header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="http://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="q" value="site:mingbo.de" />
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">主页</a></li>
-  <li><a href="/blog/archives">文章列表</a></li>
-  <li><a href="/soulsaunter">帝傲狮</a></li>
-</ul>
-
-</nav>
-  <div id="main">
-    <div id="content">
-      <div class="blog-index">
-  
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/03/activity-note/">Activity 心经</a></h1>
-    
-    
-      <p class="meta">
-        
+	
+		
+	
+	<div id="content" class="inner">
 
 
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2013/11/03/activity-note/">
+		
+			Activity 心经</a>
+	</h2>
+	<div class="entry-content">
+		<p>Android 四大组件中，Activty 最为常见。这里对Activity 的相关知识进行梳理，以供日后查阅。</p>
 
+<h2>生命周期</h2>
 
-
-
-
-
-  
-
-
-<time datetime="2013-11-03T11:33:00+08:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2013</time>
-        
-
-          | <a href="/blog/2013/11/03/activity-note/#comments">Comments</a>
-         
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Android 四大组件中，Activty 最为常见。这里对Activity 的相关知识进行梳理，以供日后查阅。</p>
-
-<h3>生命周期</h3>
-
-<p><img src="https://developer.android.com/images/training/basics/basic-lifecycle.png" alt="生命周期" /></p>
+<p><img src="/images/20131103/basic-lifecycle.png" alt="生命周期" /></p>
 
 <ul>
 <li>六种状态构成了生命周期金字塔</li>
@@ -128,7 +107,7 @@
 </ul>
 
 
-<h3>资源管理</h3>
+<h2>资源管理</h2>
 
 <ul>
 <li>鉴于<strong>内存吃紧</strong>的不可预见，我们应该在<code>onStop()</code>中释放掉那些容易造成内存泄漏的资源</li>
@@ -147,7 +126,7 @@
 </ul>
 
 
-<h3>运行模式</h3>
+<h2>运行模式</h2>
 
 <ul>
 <li>Task 是由一组为了完成某项工作的Activities 组成，它们<strong>不受</strong>进程或应用的约束，体现的是Activity 之间<strong>相互调用和执行</strong>的关系</li>
@@ -157,7 +136,7 @@
 </ul>
 
 
-<h3>其他</h3>
+<h2>其他</h2>
 
 <ul>
 <li>如果项目中没有一个Activity 被设置为<code>MAIN action</code> 或者<code>LAUNCHER category</code>，那么桌面就不会显示相应的图标</li>
@@ -168,7 +147,7 @@
 
 <hr />
 
-<h3>参考资料</h3>
+<h2>参考资料</h2>
 
 <ul>
 <li><a href="https://developer.android.com/training/basics/activity-lifecycle/starting.html">Starting an Activity</a></li>
@@ -180,92 +159,102 @@
 <li><a href="https://developer.android.com/guide/topics/resources/runtime-changes.html">Handling Runtime Changes</a></li>
 </ul>
 
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-03T11:33:00+08:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2013</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
+
+
 </div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/04/14/comment-is-cheap/">廉价的吐槽</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-04-14T19:44:00+08:00" pubdate data-updated="true">Apr 14<span>th</span>, 2013</time>
-        
-
-          | <a href="/blog/2013/04/14/comment-is-cheap/#comments">Comments</a>
+	
+	
+          | <a href="/blog/2013/11/03/activity-note/#comments">Comments</a>
          
-      </p>
-    
-  </header>
+</div>
+</article>
 
 
-  <div class="entry-content"><p>这几年，你有没有发现“赞美”变成了一件奢侈的事情？尤其当你面对一群挑剔的听众，你的赞美往往会被人扭曲：“你拿了人家什么好处，这样帮他说话？”、“推销？你被洗脑了吧！”、“这你都没见过？有什么好大惊小怪的。”…诸如此类。不晓得从什么时候开始，开口赞美，也变得越来越有压力了。</p>
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2013/04/14/comment-is-cheap/">
+		
+			廉价的吐槽</a>
+	</h2>
+	<div class="entry-content">
+		<p>这几年，你有没有发现“赞美”变成了一件奢侈的事情？尤其当你面对一群挑剔的听众，你的赞美往往会被人扭曲：“你拿了人家什么好处，这样帮他说话？”、“推销？你被洗脑了吧！”、“这你都没见过？有什么好大惊小怪的。”…诸如此类。不晓得从什么时候开始，开口赞美，也变得越来越有压力了。</p>
 
 <p>赞美的起点似乎总比被赞美的事物要低，反而吐槽更容易让你居高临下，优越感一览无遗。不管人家说什么，你跟着去赞美，容易被人说成是拍马，而吐槽的言行至少不会显得你太低端（哈哈，说这是批判精神）。这种不用思考的“安全反应”，使得越来越多的人，习惯了吐槽。当跟风赞美变成弱智、“五毛”之后，跟风吐槽就显得有节操，有品位了。任何事情，你都可以表现得不屑一顾，“安全的”凌驾于其之上。只是，这种廉价的破烂习惯，让我们的社会关系变得越来越冷漠了。</p>
 
 <p>其实，生活中并不缺乏温情的画面，讲一个刚刚发生的故事。昨天晚上，我习惯性的去了趟沃尔玛。轮到我结账的时候，为了不让后面排队的人等太久，我手忙脚乱的把货品往买来的2个袋子里塞。收银员打断了我的动作，说：你这些速冻食品压在最底下，回家的时候肯定就烂掉了。我愣了一下，结果，她很自然的接手了剩下来的操作。只用了一个袋子，就将所有货品麻利的装了进去，还照顾到了各种货品的运输属性（易碎性、温度、空间等），合理的安排了他们在装袋时的位置。很快的，我缓过神来，没有说话，但竖起了大拇指。</p>
 
 <p>同样是排队结账，吐槽就显得太过廉价了。你永远可以调侃中国人多，甚至责怪超市收银出口太少，但绝大多数的情况下，你都无法避免排队等候。而这种廉价的吐槽行为，只会让自己愤怒，说不定还会影响他人，人与人之间就在消费吐槽时，变得淡了下来。</p>
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-14T19:44:00+08:00" pubdate data-updated="true">Apr 14<span>th</span>, 2013</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/hu-si-luan-xiang/'>胡思乱想</a>
+
+
 </div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/03/13/the-note-of-procrastination/">读《拖延心理学》</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-03-13T18:27:00+08:00" pubdate data-updated="true">Mar 13<span>th</span>, 2013</time>
-        
-
-          | <a href="/blog/2013/03/13/the-note-of-procrastination/#comments">Comments</a>
+	
+	
+          | <a href="/blog/2013/04/14/comment-is-cheap/#comments">Comments</a>
          
-      </p>
-    
-  </header>
+</div>
+</article>
 
 
-  <div class="entry-content"><p>早在1年前，这本书我还只看了几页的时候，就很兴奋的将它推荐给朋友。不过很惭愧的是，直到最近两天才真正把这本书看完。合上书本，书中的故事还会时不时的击中我那弱小的心灵，除了感叹作者的神奇之外，还真心觉得应该为自己的拖延做点什么。于是，很自然的想到写点读书笔记吧。</p>
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2013/03/13/the-note-of-procrastination/">
+		
+			读《拖延心理学》</a>
+	</h2>
+	<div class="entry-content">
+		<p>早在1年前，这本书我还只看了几页的时候，就很兴奋的将它推荐给朋友。不过很惭愧的是，直到最近两天才真正把这本书看完。合上书本，书中的故事还会时不时的击中我那弱小的心灵，除了感叹作者的神奇之外，还真心觉得应该为自己的拖延做点什么。于是，很自然的想到写点读书笔记吧。</p>
 
-<h3>拖延怪圈</h3>
+<h2>拖延怪圈</h2>
 
 <ul>
 <li>现象：每次尝到恶果之后总会告诫自己，也会在每次任务开始之前提醒自己，可是一到真正动手的时候，总会自觉不自觉的把该做的事情撂在一边。</li>
@@ -276,7 +265,7 @@
 
 <p>比起看清真实的自我所带来的脆弱和无地自容，<code>拖延这个借口</code>或许更容易承受。害怕失败的人有一套自己的假设：<code>自我价值感=能力=表现</code>。这个等式强迫你用每一次的表现来衡量自己的价值。每一次拖延，你可能会想：如果我付出所有的努力，而结果还不够好的话，那我无法承受这样的结局。<strong>拖延让这一次的表现不再等同于自身的能力</strong>，因为其间缺少了完整的努力——自我价值感与自己表现之间的等同关系就难以维持了（潜台词是，如果我尽力的话，我一定能做的更好）。拖延变成了一种依赖性很强的安慰剂：每一次的拖延，都不会逼着自己去面对那些尴尬、难受的场面。让自己慢慢相信潜在的能力是无限的，是要远远大于其表现的。</p>
 
-<h3>完美主义也是凶手</h3>
+<h2>完美主义也是凶手</h2>
 
 <p>为了追求完美，你通常需要做很多“准备工作”，导致事情进展缓慢。
 也许，你并没有意识到自己是完美主义者。反而常常会觉得，事情被弄的一团糟，怎么会是完美主义者呢？其实<strong>完美主义者可以划分为两大类：适应型和适应不良型</strong>。这两种完美主义者都对自己的要求都很高，不同的是，适应型完美主义者通常能够如愿以偿，而适应不良型则在自己的要求和对自己表现的之间存在着一些矛盾：更容易自责，也更容易感到消沉。无疑，<strong>追求完美就像追逐地平线一样</strong>：你一直往前赶，但你从来都不能真正抵达想要的位置。</p>
@@ -285,89 +274,89 @@
 
 <p>（其实，“感觉不适”是拖延的一个绝好理由，只有自己舒舒服服的时候才愿意采取行动——这其实是完美主义的一个翻版。）</p>
 
-<h3>对未知的恐惧</h3>
+<h2>对未知的恐惧</h2>
 
 <p>你有没有和我一样，凡是喜欢做最坏的打算？对于未知的恐惧，使得我们选择用拖延来掩饰自己的弱点，不让外界知道自己的需要和依赖。以至于每次恐惧都让我们迟迟不肯卖出第一步。这一点不细说，说多了都是泪啊。</p>
 
-<h3>对自我掌控感的执着</h3>
+<h2>对自我掌控感的执着</h2>
 
 <p>这一点尤其体现在被人指使去做一些自己不太情愿的事情。下面这两句，很可能在你的脑袋里出现过：“这项任务真是荒谬！”“我干嘛要按照她的意思来做？”</p>
 
 <p>在这样的背景下，<code>拖延很可能成为你的一种心理平衡的工具</code>。它增强了你的自由感，让你自己认为并不是一个“奴隶”。因为此时此刻，你正在按自己的想法在做。(类似的情况，是体验一种报复的快感)</p>
 
-<h3>Change We Need!</h3>
+<h2>Change We Need!</h2>
 
 <p>从上面的分析里我们不能难看到，想要改正拖延这个顽疾，就必须得面对上述的各种恐惧、放弃曾经的各种执着，而随着岁月的积淀，这些早已形成习惯，挥之不去。</p>
 
 <p>所以，与其和他们来硬的，不如首先<strong>接受自己的缺陷、伤痛还有伤疤</strong>。接下来呢？接下来就得看造化了，老老实实的开始呗。开始时，可能需要将目标分解成现实、具体、可行的小目标，这样的分解是可以递归进行的，直到最细小的任务出现&mdash;以至于你可以轻松的迈出第一步了。</p>
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-13T18:27:00+08:00" pubdate data-updated="true">Mar 13<span>th</span>, 2013</time></div>
+	<div class="tags">
+
+
+	<a class='category' href='/blog/categories/du-shu-bi-ji/'>读书笔记</a>
+
+
 </div>
-  
-  
-
-
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-    <a class="next" href="/blog/page/2/">Newer &rarr;</a>
-    
-  </div>
+	
+	
+          | <a href="/blog/2013/03/13/the-note-of-procrastination/#comments">Comments</a>
+         
 </div>
-<aside class="sidebar">
-  
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2013/12/23/git-revise/">Git 常用命令复习</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/03/debug-over-wifi/">Android无线调试</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/17/processes-nand-threads-notes/">进程与线程</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/08/how-android-draws-views/">视图的绘制</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/04/listview-re-getview/">Listview 子控件重复加载</a>
-      </li>
-    
-  </ul>
-</section>
+</article>
 
+<nav id="pagenavi">
+    
+        <a href="/blog/page/2/" class="prev">Prev</a>
+    
+    
+    <div class="center"><a href="/blog/archives">Blog Archives</a></div>
+</nav></div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
 
-
-
-
-  
-</aside>
-
-    </div>
-  </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - 邵明博 <!---
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> -->
-</p>
+    邵明博
 
 </footer>
-  
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
 
 
 
 
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-37619750-1']);
+		_gaq.push(['_trackPageview']);
 
-
-
-
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
 
 
 

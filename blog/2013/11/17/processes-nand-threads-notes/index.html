@@ -1,113 +1,83 @@
 
-<!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<!DOCTYPE HTML>
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>进程与线程 - mingbo</title>
-  <meta name="author" content="邵明博">
+	<meta charset="utf-8">
+	<title>进程与线程 - mingbo</title>
+	<meta name="author" content="邵明博">
 
-  
-<meta name="description" content="关于进程与线程的学习笔记">
-  <meta name="keywords" content="android, process, thread, android:multiprocess, 优先级">
+	
+	<meta name="description" content="关于进程与线程的学习笔记">
+	<meta name="keywords" content="android, process, thread, android:multiprocess, 优先级">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  
-  <link rel="canonical" href="http://mingbo.de/blog/2013/11/17/processes-nand-threads-notes">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="mingbo" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
-  
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-37619750-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
-
-
+	<link href="/atom.xml" rel="alternate" title="mingbo" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<script async="true" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
 </head>
 
-<body   >
-  <header role="banner"><hgroup>
-  <h1><a href="/">mingbo</a></h1>
-  
-    <h2>菜鸟程序员的胡思乱想</h2>
-  
-</hgroup>
+
+<body>
+	<header id="header" class="inner"><h1><a href="/">mingbo</a></h1>
+<nav id="main-nav"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+	<li><a href="/soulsaunter">帝傲狮</a></li>
+</ul>
+</nav>
+<nav id="mobile-nav">
+	<div class="alignleft menu">
+		<a class="button">Menu</a>
+		<div class="container"><ul class="main">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/archives">Archives</a></li>
+	<li><a href="/soulsaunter">帝傲狮</a></li>
+</ul>
+</div>
+	</div>
+	<div class="alignright search">
+		<a class="button"></a>
+		<div class="container">
+			<form action="http://google.com/search" method="get">
+				<input type="text" name="q" results="0">
+				<input type="hidden" name="q" value="site:mingbo.de">
+			</form>
+		</div>
+	</div>
+</nav>
+<nav id="sub-nav" class="alignright">
+	<div class="social">
+		
+		
+		
+		
+    
+		
+		
+		
+		
+		
+		<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+    
+	</div>
+	<form class="search" action="http://google.com/search" method="get">
+		<input class="alignright" type="text" name="q" results="0">
+		<input type="hidden" name="q" value="site:mingbo.de">
+	</form>
+</nav>
 
 </header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="http://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="q" value="site:mingbo.de" />
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">主页</a></li>
-  <li><a href="/blog/archives">文章列表</a></li>
-  <li><a href="/soulsaunter">帝傲狮</a></li>
-</ul>
-
-</nav>
-  <div id="main">
-    <div id="content">
-      <div>
-<article class="hentry" role="article">
-  
-  <header>
-    
-      <h1 class="entry-title">进程与线程</h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-17T15:57:00+08:00" pubdate data-updated="true">Nov 17<span>th</span>, 2013</time>
-        
-
-          | <a href="#comments">Comments</a>
-         
-      </p>
-    
-  </header>
-
-
-<div class="entry-content"><p>Android 组件具有天生的跨进程特性，因此，android 应用开发者通常是不需要关注进程概念的。但这也往往导致我们忽视了进程的一些细节问题。这里，就目前的认识做一些小结。</p>
+	
+		
+	
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">进程与线程</h2>
+	<div class="entry-content"><p>Android 组件具有天生的跨进程特性，因此，android 应用开发者通常是不需要关注进程概念的。但这也往往导致我们忽视了进程的一些细节问题。这里，就目前的认识做一些小结。</p>
 
 <p>Android 是以<strong>进程对用户的重要性</strong>为依据来管理进程的。其重要性分为5个层级，重要性越低的进程越容易被系统干掉。</p>
 
@@ -120,7 +90,7 @@
 </ul>
 
 
-<h3>Foreground process</h3>
+<h2>Foreground process</h2>
 
 <p>优先级最高，即使在系统内存吃紧的情况下不到万不得已，是不会杀这类进程的。如果这类进程被杀，通常是因为用户界面卡得不能动弹而被迫执行的。这类进程所包含的组件通常满足以下特征：</p>
 
@@ -131,7 +101,7 @@
 5.  BroadcastReceiver 正在执行`onReceived()`
 </code></pre>
 
-<h3>Visible process</h3>
+<h2>Visible process</h2>
 
 <p>优先级次之，系统在保证Foreground process 的前提下，保证这类进程的运行。这类进程虽不直接与用户交互，但用户能在界面上看到与之相关的组件。这些组件通常会有以下特征：</p>
 
@@ -139,25 +109,25 @@
 2.  service 绑定的activity 处于paused 状态
 </code></pre>
 
-<h3>Service process</h3>
+<h2>Service process</h2>
 
 <p>虽然没有与用户直接交互，但它们所做做的事情与用户息息相关。所以系统会按照优先级，在保留上述进程的前提下，尽可能的保留此类进程。不符合上面描述的Service 进程都属于Service Process。</p>
 
-<h3>Background process</h3>
+<h2>Background process</h2>
 
 <p>随时会被系统回收。为了提升用户体验，系统使用LRU 缓存维护这类进程，使得用户最近使用的进程推迟回收。这类进程通常只持有不可视组件，如paused 状态下的activity。</p>
 
-<h3>Empty process</h3>
+<h2>Empty process</h2>
 
 <p>这类进程的存在仅仅只是为了让启动进程看起来更快一些，也因此更容易被系统回收。</p>
 
-<h3>android:multiprocess 属性</h3>
+<h2>android:multiprocess 属性</h2>
 
 <p>默认情况下，该设置为false，表示该组件会在定义组件的应用进程中运行。当第三方应用调用该组件时，会有2个进程启动：第三方应用以及定义组件的应用。</p>
 
 <p>如果该属性设置为true，表示允许该组件“嫁”出去：当第三方应用调用该组件时，会直接在该进程中构造组件。这么做会让组件在整个系统中的数量增加，但与调用者之间的交互更为紧密。值得一提的是，在实际开发中，这么做需要考虑并发的复杂性。</p>
 
-<h3>零散的知识点</h3>
+<h2>零散的知识点</h2>
 
 <ul>
 <li>一个进程如果包含多个组件，那么，该进程取组件中优先级最高的作为自己的优先级</li>
@@ -167,7 +137,7 @@
 </ul>
 
 
-<h3>参考资料</h3>
+<h2>参考资料</h2>
 
 <ul>
 <li><a href="https://developer.android.com/guide/components/processes-and-threads.html">Processes and Threads</a></li>
@@ -177,14 +147,8 @@
 </div>
 
 
-  <footer>
-    <p class="meta">
-      
-  
-
-<span class="byline author vcard">Posted by <span class="fn">邵明博</span></span>
-
-      
+<div class="meta">
+	<div class="date">
 
 
 
@@ -196,39 +160,37 @@
   
 
 
-<time datetime="2013-11-17T15:57:00+08:00" pubdate data-updated="true">Nov 17<span>th</span>, 2013</time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
-  
-</span>
+<time datetime="2013-11-17T15:57:00+08:00" pubdate data-updated="true">Nov 17<span>th</span>, 2013</time></div>
+	<div class="tags">
 
 
-    </p>
-    
-      <div class="sharing">
-  
-  
-  
+	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
+
+
 </div>
-
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2013/11/08/how-android-draws-views/" title="Previous Post: 视图的绘制">&laquo; 视图的绘制</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2013/12/03/debug-over-wifi/" title="Next Post: android无线调试">android无线调试 &raquo;</a>
-      
-    </p>
-  </footer>
+	
+	
+          | <a href="#comments">Comments</a>
+         
+</div>
 </article>
 
+	<div class="share">
+	<div class="addthis_toolbox addthis_default_style ">
+		
+		
+		
+		
+	</div>
+	
+</div>
 
-  <section>
-    <h1>Comments</h1>
+
+
+
+
+<section id="comment">
+    <h2 class="title">Comments</h2>
     <div id="comments" aria-live="polite"><!-- Duoshuo Comment BEGIN -->
 	<div class="ds-thread"></div>
 <script type="text/javascript">
@@ -242,66 +204,36 @@ var duoshuoQuery = {short_name:"shaomingbo"};
 		|| document.getElementsByTagName('body')[0]).appendChild(ds);
 	})();
 	</script>
-<!-- Duoshuo Comment END -->
-</div>
-  </section>
-
-</div>
-
-<aside class="sidebar">
-  
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2013/12/23/git-revise/">Git 常用命令复习</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/03/debug-over-wifi/">Android无线调试</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/17/processes-nand-threads-notes/">进程与线程</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/08/how-android-draws-views/">视图的绘制</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/04/listview-re-getview/">Listview 子控件重复加载</a>
-      </li>
-    
-  </ul>
+<!-- Duoshuo Comment END --></div>
 </section>
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2013
 
-
-
-
-
-  
-</aside>
-
-
-    </div>
-  </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - 邵明博 <!---
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> -->
-</p>
+    邵明博
 
 </footer>
-  
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
 
 
 
 
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-37619750-1']);
+		_gaq.push(['_trackPageview']);
 
-
-
-
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
 
 
 
