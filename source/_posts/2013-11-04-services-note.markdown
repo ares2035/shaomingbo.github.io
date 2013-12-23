@@ -13,7 +13,7 @@ Service 作为一个“看不见”的android 组件，天然的就应该为Andr
 
 总的来说，Service 有两种形式：**命令启动类(Started)** 与 **绑定类(Bound)**。两种形式之间并不总是非此既彼的关系，同一个应用的同一个Service 可以同时满足这两种形式，而这一点完全取决于应用逻辑。
 
-###命令启动类（started）的Service
+##命令启动类（started）的Service
 -   一旦被启动，如果没有其他组件调用`stopService()`而且自己也没有调用`stopSelf(int)`，那么它将会一直运行下去（除非系统内存吃紧）
 -   `onStartCommand()`有三类返回值，分别代表Service 在执行完该函数之后，如遭遇系统Kill 的不同策略：
     1.  `START_NOT_STICKY`，除非有新的命令，不然不会重新构建Service
@@ -22,7 +22,7 @@ Service 作为一个“看不见”的android 组件，天然的就应该为Andr
 -   和绑定类服务不同，如果希望得到交互结果，则必须使用Broardcast传递
 -   `startCommand()` 会有并发的情况，但`stopService()` 只会执行一次。所以在具体应用场景中，我们需要考虑命令Service们能不能、该不该被中途停止。如果得到的答案是否定的，那么我们应该尝试使用`stopSelf(int)`来管理service，其参数为希望停止的service ID。
 
-###简化的命令服务IntentServie
+##简化的命令服务IntentServie
 如果你不希望Service 处理并发请求，那么IntentService 是不二的选择。之所以这么说，是你几乎只需要三步就可以实现一个为你完成后台操作的单线程服务：1，继承IntetnService；2，覆盖`onHandleIntent()`；3，在构造函数中初始化父类。那么IntentService 会帮你做到：
 -   创建一个后台线程
 -   创建一个消息队列来执行任务
@@ -30,7 +30,7 @@ Service 作为一个“看不见”的android 组件，天然的就应该为Andr
 
 如果希望自己覆盖某些Service 的方法，**那么一定要记得调用super**，否则会导致一些意想不到的结果出现。
 
-###绑定类(Bound)服务
+##绑定类(Bound)服务
 -   `IBinder` 表示客户端与服务端交互的接口
 -   三种提供Binder 接口的方法：
     1.  直接继承Binder 类，提供API 给客户端调用。这些API 既可以由Binder 子类来实现，也可以通过API 返回该服务或其他服务的实例，由服务本身提供的方法去完成调用；**这种方法适用与私有服务**。
@@ -46,14 +46,14 @@ Service 作为一个“看不见”的android 组件，天然的就应该为Andr
 -   所有对象均为跨进程引用计数
 -   如果服务连接丢失的话，容易引发`DeadObjectException`
 
-![服务的生命周期](https://developer.android.com/images/fundamentals/service_binding_tree_lifecycle.png)
+![服务的生命周期](/images/20131104/service_binding_tree_lifecycle.png)
 
-###前台服务
+##前台服务
 -   前台服务能够极大的提升不被杀掉的概率
 -   前台服务必须有与之对应**ON-GONING**通知显示
 -   `stopForeground()`并不会停止服务；而停止服务后，通知自然消亡
 
-###AIDL
+##AIDL
 -   Stub 继承自Binder 还实现了aidl 中的接口，除此之外还提供类似`asInterface(IBinder)`的辅助方法
 -   AIDL 接口调用是直接方法调用，不应该想当然的认为它们在哪个线程中执行。如果是本地进程调用，那么接口会和调用者使用同一个线程执行；如果是远程调用，会由服务所在的进程的线程池派发一个线程来执行；如果使用oneway修饰，在远程调用中是非阻塞的，而在本地调用中依然是同步的。
 -   AIDL 支持java 的基础类型、`String`、`Charsequence`、`List`、`Map`，除此之外的类型，都需要实现Parcebal接口，且必须使用import来声明，即使它们在同一个包
@@ -61,12 +61,12 @@ Service 作为一个“看不见”的android 组件，天然的就应该为Andr
 -   为了避免ANR，应该将调用转移到单独的线程中执行
 -   抛出的异常不会被调用者捕获（跨进程异常是不可取的）
 
-###参考资料
+##参考资料
 -   [Services](https://developer.android.com/guide/components/services.html)
 -   [Bound Services](https://developer.android.com/guide/components/bound-services.html)
 -   [AIDL](https://developer.android.com/guide/components/aidl.html)
 
-###参考代码
+##参考代码
 -   [MessengerService.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/MessengerService.java)
 -   [MessengerServiceActivities.java](https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/MessengerServiceActivities.java)
 
