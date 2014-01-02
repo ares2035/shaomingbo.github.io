@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 码农工具 | mingbo]]></title>
   <link href="http://mingbo.de/blog/categories/ma-nong-gong-ju/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2013-12-23T17:14:21+08:00</updated>
+  <updated>2014-01-02T14:20:33+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -12,6 +12,50 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[使用Dropbox搭建私人git仓库]]></title>
+    <link href="http://mingbo.de/blog/2014/01/02/shi-yong-dropboxda-jian-si-ren-gitcang-ku/"/>
+    <updated>2014-01-02T13:59:00+08:00</updated>
+    <id>http://mingbo.de/blog/2014/01/02/shi-yong-dropboxda-jian-si-ren-gitcang-ku</id>
+    <content type="html"><![CDATA[<h3>Why this?</h3>
+
+<ul>
+<li>有私人项目(不限于代码以及设计方案)</li>
+<li>该项目（暂时）不公开</li>
+<li>需要<strong>版本控制</strong></li>
+<li>虽然github 是一个不错的选择，但就项目目前状况而言premium 账号显得并不划算</li>
+<li>项目备份以及研发环境的迁移</li>
+<li>and so on</li>
+</ul>
+
+
+<h3>How</h3>
+
+<ul>
+<li>就像stage area是working directory与本地仓库的缓存，本地仓库是working directory与中心仓库之间的缓存</li>
+<li>我们把dropbox看成是中心仓库，那么working directory与中心仓库之间的缓存就是本地仓库了</li>
+<li>建立本地仓库<code>git init &lt;path to your project&gt;</code></li>
+<li>构建stage area<code>git add .</code></li>
+<li>初始化提交<code>git commit -m 'repo init'</code></li>
+<li>创建dropbox 中心仓库<code>git init --bare ~/Dropbox/git/center.git</code></li>
+<li>建立远程连接<code>git remote add dropbox ~/Dropbox/git/center.git</code></li>
+<li>备份本地仓库<code>git push dropbox master</code></li>
+<li>拉取中心仓库<code>git pull dropbox master</code></li>
+<li>若开发环境发生了迁移，比如从公司换到了家里，<code>git clone ~/Dropbox/git/center.git</code></li>
+</ul>
+
+
+<h3>写在最后</h3>
+
+<ul>
+<li>好的云存储服务有很多，而dropbox是客户端最完备的一个。本文介绍的方法显然不限于dropbox一家。</li>
+<li><code>~/Dropbox/</code>是dropbox安装后的默认路径，不同的云存储的本地默认地址会不同</li>
+<li>git子目录是我自己创建的，所以<code>center.git</code>也可以根据需求命名</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[git 常用命令复习]]></title>
