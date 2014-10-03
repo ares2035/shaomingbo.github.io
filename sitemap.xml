@@ -2,63 +2,67 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://mingbo.de/blog/2013/03/13/the-note-of-procrastination/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2013/04/14/comment-is-cheap/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2013/11/03/activity-note/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2013/11/04/services-note/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2013/11/04/listview-re-getview/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2013/11/08/how-android-draws-views/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2013/11/17/processes-nand-threads-notes/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2013/12/03/debug-over-wifi/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2013/12/23/git-revise/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2014/01/02/shi-yong-dropboxda-jian-si-ren-gitcang-ku/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/2014/04/13/one-day-at-shenzhen-zoo/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:19:50+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/404.html</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:20:49+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/archives/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T22:55:43+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/archives/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T22:55:43+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://mingbo.de/blog/categories/</loc>
+        <lastmod>2014-10-03T23:20:49+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/blog/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T22:55:43+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/feed/index.xml</loc>
@@ -66,14 +70,18 @@
     </url>
     <url>
         <loc>http://mingbo.de/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T22:55:43+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/robots.txt</loc>
-        <lastmod>2014-10-02T17:38:46+08:00</lastmod>
+        <lastmod>2014-10-03T19:59:55+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://mingbo.de/search.html</loc>
+        <lastmod>2014-10-03T22:55:43+08:00</lastmod>
     </url>
     <url>
         <loc>http://mingbo.de/soulsaunter/</loc>
-        <lastmod>2014-10-02T17:38:45+08:00</lastmod>
+        <lastmod>2014-10-03T23:20:49+08:00</lastmod>
     </url>
 </urlset>
