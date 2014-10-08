@@ -9,7 +9,7 @@
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content="Nov 8th, 2013 android笔记 Comments 视图的绘制 在《Listview 子控件重复加载》中谈到了onMeasure()方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充： 绘制过程是一个控件树遍历的过程，从根控件开始 &hellip;">
+	<meta name="description" content="Nov 17th, 2013 android笔记 Comments 进程与线程 Android 组件具有天生的跨进程特性，因此，android 应用开发者通常是不需要关注进程概念的。但这也往往导致我们忽视了进程的一些细节问题。这里，就目前的认识做一些小结。 Android &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -94,6 +94,110 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner">
 <div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-17T15:57:00+08:00" data-updated="true" itemprop="datePublished">Nov 17<span>th</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
+
+
+</div>
+		
+		
+          <span class="comments"><a href="/blog/2013/11/17/processes-nand-threads-notes/#comments">Comments</a></span>
+         
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/11/17/processes-nand-threads-notes/" itemprop="url">进程与线程</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>Android 组件具有天生的跨进程特性，因此，android 应用开发者通常是不需要关注进程概念的。但这也往往导致我们忽视了进程的一些细节问题。这里，就目前的认识做一些小结。</p>
+
+<p>Android 是以<strong>进程对用户的重要性</strong>为依据来管理进程的。其重要性分为5个层级，重要性越低的进程越容易被系统干掉。</p>
+
+<ul>
+<li>Foreground process</li>
+<li>Visible process</li>
+<li>Service process</li>
+<li>Background process</li>
+<li>Empty process</li>
+</ul>
+
+
+<h2>Foreground process</h2>
+
+<p>优先级最高，即使在系统内存吃紧的情况下不到万不得已，是不会杀这类进程的。如果这类进程被杀，通常是因为用户界面卡得不能动弹而被迫执行的。这类进程所包含的组件通常满足以下特征：</p>
+
+<pre><code>1.  activity 正在与用户进行交互
+2.  service 绑定的activity 正在与用户交互
+3.  service 执行了`startForeground()`
+4.  service 正在执行生命周期回调函数
+5.  BroadcastReceiver 正在执行`onReceived()`
+</code></pre>
+
+<h2>Visible process</h2>
+
+<p>优先级次之，系统在保证Foreground process 的前提下，保证这类进程的运行。这类进程虽不直接与用户交互，但用户能在界面上看到与之相关的组件。这些组件通常会有以下特征：</p>
+
+<pre><code>1.  activity 在Paused 状态，处于可视但不可交互的状态
+2.  service 绑定的activity 处于paused 状态
+</code></pre>
+
+<h2>Service process</h2>
+
+<p>虽然没有与用户直接交互，但它们所做做的事情与用户息息相关。所以系统会按照优先级，在保留上述进程的前提下，尽可能的保留此类进程。不符合上面描述的Service 进程都属于Service Process。</p>
+
+<h2>Background process</h2>
+
+<p>随时会被系统回收。为了提升用户体验，系统使用LRU 缓存维护这类进程，使得用户最近使用的进程推迟回收。这类进程通常只持有不可视组件，如paused 状态下的activity。</p>
+
+<h2>Empty process</h2>
+
+<p>这类进程的存在仅仅只是为了让启动进程看起来更快一些，也因此更容易被系统回收。</p>
+
+<h2>android:multiprocess 属性</h2>
+
+<p>默认情况下，该设置为false，表示该组件会在定义组件的应用进程中运行。当第三方应用调用该组件时，会有2个进程启动：第三方应用以及定义组件的应用。</p>
+
+<p>如果该属性设置为true，表示允许该组件“嫁”出去：当第三方应用调用该组件时，会直接在该进程中构造组件。这么做会让组件在整个系统中的数量增加，但与调用者之间的交互更为紧密。值得一提的是，在实际开发中，这么做需要考虑并发的复杂性。</p>
+
+<h2>零散的知识点</h2>
+
+<ul>
+<li>一个进程如果包含多个组件，那么，该进程取组件中优先级最高的作为自己的优先级</li>
+<li>一个进程的优先级会因为其他进程的依赖而提升</li>
+<li>由于service 比后台进程优先级高，一些长时间操作在service 中运行更有安全感</li>
+<li>IBinder、 ContentProvider 的方法通常要注意线程安全</li>
+</ul>
+
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="https://developer.android.com/guide/components/processes-and-threads.html">Processes and Threads</a></li>
+<li><a href="https://developer.android.com/guide/topics/manifest/activity-element.html#multi">activity属性</a></li>
+</ul>
+
+
+		
+		
+	</div>
+
+</article>
 
 
     <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
@@ -222,138 +326,6 @@
 <h2>原因：</h2>
 
 <p>通过分析<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/AbsListView.java">AbsListView</a> 以及<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/ListView.java">Listview</a>的代码，发现答案应该在<code>onMeasure()</code>方法里：由于<code>wrap_content</code> 并没有指定一个固定值，<strong>系统需要通过尝试layout来满足<code>wrap_content</code></strong>。每次尝试都会调用<code>onMeasure()</code>,<code>layoutChildren()</code>,使得<code>getView()</code>被重复调用</p>
-
-		
-		
-	</div>
-
-</article>
-
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-04T15:21:00+08:00" data-updated="true" itemprop="datePublished">Nov 4<span>th</span>, 2013</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
-
-
-</div>
-		
-		
-          <span class="comments"><a href="/blog/2013/11/04/services-note/#comments">Comments</a></span>
-         
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2013/11/04/services-note/" itemprop="url">Service 心经</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<p>Service 作为一个“看不见”的android 组件，天然的就应该为Android 程序去处理那些费事费力的苦活。但即使这样，作为四大组件之一的它依然运行在主线程上。也就是说，那些理所当然的“负担”如果<strong>直接运行在Service 上必然会影响程序的UI 性能</strong>。因此，我们通常需要与之对应的后台线程来完成工作。</p>
-
-<p>与其他组件一样，要想Service 正常运行，就必须在<code>AndroidManifest.xml</code> 中对其进行声明。如果Service 作为一个开放组件（允许外部程序调用），则还需要设置Intent Filter 来支持隐式调用；反之，如果它只在程序内运行，则可省去Filter 设置，更妥当的做法是将<code>export</code>属性设置为false。</p>
-
-<p>总的来说，Service 有两种形式：<strong>命令启动类(Started)</strong> 与 <strong>绑定类(Bound)</strong>。两种形式之间并不总是非此既彼的关系，同一个应用的同一个Service 可以同时满足这两种形式，而这一点完全取决于应用逻辑。</p>
-
-<h2>命令启动类（started）的Service</h2>
-
-<ul>
-<li>一旦被启动，如果没有其他组件调用<code>stopService()</code>而且自己也没有调用<code>stopSelf(int)</code>，那么它将会一直运行下去（除非系统内存吃紧）</li>
-<li><code>onStartCommand()</code>有三类返回值，分别代表Service 在执行完该函数之后，如遭遇系统Kill 的不同策略：
-
-<ol>
-<li><code>START_NOT_STICKY</code>，除非有新的命令，不然不会重新构建Service</li>
-<li><code>START_STICKY</code>，不死Service。如果系统资源允许，会重新构建Service并调用<code>startCommand()</code>，但并不会重新传递最后一次发过来的intent。（适用于不care 命令，而care 启没启动的操作，比如恢复音乐播放）</li>
-<li><code>START_REDELIVER_INTENT</code>, 对intent 负责到底。在系统资源允许的情况下，重新构建service并将最后一次发送的intent 通过参数传递给<code>startCommand()</code>。（适用于care 命令，比如恢复下载某个文件）</li>
-</ol>
-</li>
-<li>和绑定类服务不同，如果希望得到交互结果，则必须使用Broardcast传递</li>
-<li><code>startCommand()</code> 会有并发的情况，但<code>stopService()</code> 只会执行一次。所以在具体应用场景中，我们需要考虑命令Service们能不能、该不该被中途停止。如果得到的答案是否定的，那么我们应该尝试使用<code>stopSelf(int)</code>来管理service，其参数为希望停止的service ID。</li>
-</ul>
-
-
-<h2>简化的命令服务IntentServie</h2>
-
-<p>如果你不希望Service 处理并发请求，那么IntentService 是不二的选择。之所以这么说，是你几乎只需要三步就可以实现一个为你完成后台操作的单线程服务：1，继承IntetnService；2，覆盖<code>onHandleIntent()</code>；3，在构造函数中初始化父类。那么IntentService 会帮你做到：
-&ndash;   创建一个后台线程
-&ndash;   创建一个消息队列来执行任务
-&ndash;   当没有任务的时候自动停止</p>
-
-<p>如果希望自己覆盖某些Service 的方法，<strong>那么一定要记得调用super</strong>，否则会导致一些意想不到的结果出现。</p>
-
-<h2>绑定类(Bound)服务</h2>
-
-<ul>
-<li><code>IBinder</code> 表示客户端与服务端交互的接口</li>
-<li>三种提供Binder 接口的方法：
-
-<ol>
-<li>直接继承Binder 类，提供API 给客户端调用。这些API 既可以由Binder 子类来实现，也可以通过API 返回该服务或其他服务的实例，由服务本身提供的方法去完成调用；<strong>这种方法适用与私有服务</strong>。</li>
-<li>使用Messenger返回binder。该方法的本质是AIDL，提供了一种线程安全的跨进程通讯方案。<strong>这种方法适用于服务与调用组件不在同一个进程的情况</strong>。详见<code>参考代码</code></li>
-<li>如果服务不但跨进程，而且还希望处理并发请求，则应该使用<code>AIDL</code>来实现</li>
-</ol>
-</li>
-<li>多个客户端可以绑定同一个服务，但<code>onBind()</code> 只会在第一个客户端绑定的时候被调用。之后绑定的客户端虽然会获得同样的binder，但已经不会再调用<code>onBind()</code>了</li>
-<li>四大组件中除了<code>Broardcast Receiver</code>之外都可以绑定服务</li>
-<li><code>onServiceDisconnected()</code>只会在服务崩溃的时候调用，<strong>而并不会在unbind 的时候被调用</strong></li>
-<li>bind 应与unbind 成对出现，服务与其绑定的客户端组件共存亡。如果交互工作完全结束的话，可以尽早的结束绑定，而不一定要等到组件消亡(比如某浪sso 接口那样)</li>
-<li>bind 与unbind 不应该出现在<code>onResume()</code> 以及<code>onPause()</code>里，这样会使得服务的绑定与解绑操作过于频繁</li>
-<li>绑定类服务又恰巧被调用了<code>startService()</code>，则只有同时满足以下条件，服务才会终止：1，没有客户端组件绑定该服务；2，服务调用了<code>stopService()</code> 或者<code>stopSelf(int)</code></li>
-<li>如下图所示，只有当<code>unBind()</code>返回true 的时候，下次绑定的时候，系统才会调用<code>onRebind()</code>，否则还会继续调用<code>onBind()</code></li>
-<li>所有对象均为跨进程引用计数</li>
-<li>如果服务连接丢失的话，容易引发<code>DeadObjectException</code></li>
-</ul>
-
-
-<p><img src="/images/20131104/service_binding_tree_lifecycle.png" alt="服务的生命周期" /></p>
-
-<h2>前台服务</h2>
-
-<ul>
-<li>前台服务能够极大的提升不被杀掉的概率</li>
-<li>前台服务必须有与之对应<strong>ON-GONING</strong>通知显示</li>
-<li><code>stopForeground()</code>并不会停止服务；而停止服务后，通知自然消亡</li>
-</ul>
-
-
-<h2>AIDL</h2>
-
-<ul>
-<li>Stub 继承自Binder 还实现了aidl 中的接口，除此之外还提供类似<code>asInterface(IBinder)</code>的辅助方法</li>
-<li>AIDL 接口调用是直接方法调用，不应该想当然的认为它们在哪个线程中执行。如果是本地进程调用，那么接口会和调用者使用同一个线程执行；如果是远程调用，会由服务所在的进程的线程池派发一个线程来执行；如果使用oneway修饰，在远程调用中是非阻塞的，而在本地调用中依然是同步的。</li>
-<li>AIDL 支持java 的基础类型、<code>String</code>、<code>Charsequence</code>、<code>List</code>、<code>Map</code>，除此之外的类型，都需要实现Parcebal接口，且必须使用import来声明，即使它们在同一个包</li>
-<li>调用不保证会执行，所以从一开始设计的时候就应该考虑线程安全</li>
-<li>为了避免ANR，应该将调用转移到单独的线程中执行</li>
-<li>抛出的异常不会被调用者捕获（跨进程异常是不可取的）</li>
-</ul>
-
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="https://developer.android.com/guide/components/services.html">Services</a></li>
-<li><a href="https://developer.android.com/guide/components/bound-services.html">Bound Services</a></li>
-<li><a href="https://developer.android.com/guide/components/aidl.html">AIDL</a></li>
-</ul>
-
-
-<h2>参考代码</h2>
-
-<ul>
-<li><a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/MessengerService.java">MessengerService.java</a></li>
-<li><a href="https://android.googlesource.com/platform/development/+/master/samples/ApiDemos/src/com/example/android/apis/app/MessengerServiceActivities.java">MessengerServiceActivities.java</a></li>
-</ul>
-
 
 		
 		
