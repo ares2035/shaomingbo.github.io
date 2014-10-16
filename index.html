@@ -9,7 +9,7 @@
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content="Oct 8th, 2014 android笔记 Comments 谈谈android屏幕适配 痛并快乐着 &ldquo;碎片化&rdquo;像一个魔咒，从android 平台问世那天至今，伴随其成长。客观的说，这样的多样性的确帮助android 俘获了数以亿计的用户， &hellip;">
+	<meta name="description" content="Oct 16th, 2014 android笔记 Comments Android数据库升级tips 唯一不变的是变化 App 版本迭代的过程中，一定会遇到sqlite 数据库需要升级的情况。一个简单粗暴的解决方法，是不顾用户的数据，直接去重建各个数据表。显然，今天要分享的并不是这个粗暴的方法 &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -94,6 +94,131 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner">
 <div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-16T22:18:00+08:00" data-updated="true" itemprop="datePublished">Oct 16<span>th</span>, 2014</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
+
+
+</div>
+		
+		
+          <span class="comments"><a href="/blog/2014/10/16/a-strategy-for-upgrade-database-in-android/#comments">Comments</a></span>
+         
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2014/10/16/a-strategy-for-upgrade-database-in-android/" itemprop="url">Android数据库升级tips</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<h3>唯一不变的是变化</h3>
+
+<p>App 版本迭代的过程中，一定会遇到sqlite 数据库需要升级的情况。一个简单粗暴的解决方法，是不顾用户的数据，直接去重建各个数据表。显然，今天要分享的并不是这个粗暴的方法。</p>
+
+<h3>常见的困惑</h3>
+
+<p><code>SQLiteOpenHelper</code>提供了一个处理数据库升级的API<code>onUpgrade(final SQLiteDatabase db, int from, final int to)</code>。从语义上来看，升级策略的描述应该有一个起始点<code>from</code>，也还应该有一个终点<code>to</code>。但由于起始点的不确定性，致使这里的代码分支会略显复杂。老实讲，在写这篇日志之前，我都没有把握温柔细致的处理好这件事。</p>
+
+<h3>灵感来源于android源码</h3>
+
+<p><code>DownloadManager</code>也使用数据库存储下载状态。其子类<code>DatabaseHelper</code>将升级函数降维，把原本复杂的升级过程，分解为多个原子的升级过程，而这个原子过程是简单、确定的。直接上代码吧：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onUpgrade</span><span class="o">(</span><span class="kd">final</span> <span class="n">SQLiteDatabase</span> <span class="n">db</span><span class="o">,</span> <span class="kt">int</span> <span class="n">oldV</span><span class="o">,</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">newV</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="c1">//循环体内，每次只升一个版本</span>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">version</span> <span class="o">=</span> <span class="n">oldV</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span> <span class="n">version</span> <span class="o">&lt;=</span> <span class="n">newV</span><span class="o">;</span> <span class="n">version</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">upgradeTo</span><span class="o">(</span><span class="n">db</span><span class="o">,</span> <span class="n">version</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//Upgrade database from (version - 1) to version.</span>
+</span><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="nf">upgradeTo</span><span class="o">(</span><span class="n">SQLiteDatabase</span> <span class="n">db</span><span class="o">,</span> <span class="kt">int</span> <span class="n">version</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="o">(</span><span class="n">version</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">100</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">createDownloadsTable</span><span class="o">(</span><span class="n">db</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">101</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">createHeadersTable</span><span class="o">(</span><span class="n">db</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">102</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">addColumn</span><span class="o">(</span><span class="n">db</span><span class="o">,</span> <span class="n">DB_TABLE</span><span class="o">,</span> <span class="n">Downloads</span><span class="o">.</span><span class="na">Impl</span><span class="o">.</span><span class="na">COLUMN_IS_PUBLIC_API</span><span class="o">,</span>
+</span><span class='line'>                              <span class="s">&quot;INTEGER NOT NULL DEFAULT 0&quot;</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">105</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">fillNullValues</span><span class="o">(</span><span class="n">db</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;Don&#39;t know how to upgrade to &quot;</span> <span class="o">+</span> <span class="n">version</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>以上代码不仅逻辑清晰，而且还能很好的复用。比如在<code>onCreate</code>函数里需要初始化数，就可以直接调用<code>upgradeTo(db, CURRENT_VERSION)</code>.这样一来，无论是从哪个版本升级上来，都能平滑的处理版本问题了。</p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="https://android.googlesource.com/platform/packages/providers/DownloadProvider/+/master/src/com/android/providers/downloads/DownloadProvider.java#228">DownloadProvider</a></li>
+</ul>
+
+
+		
+		
+	</div>
+
+</article>
 
 
     <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
@@ -253,52 +378,6 @@
 <p>整个工具只有一个界面，一个全局窗口。代码在放在<a href="https://github.com/shaomingbo/EasyDump">Github 上</a>，当然你也可以直接从<a href="https://play.google.com/store/apps/details?id=de.mingbo.easydump">Google play下载</a>、使用。噢，前两天看到一个<a href="https://community.emc.com/people/Zhang%2CJiawen">妹纸</a>发了一张图和抓包相关，而且还不错，这里也mark 一下。</p>
 
 <p><img class="center" src="/images/tcpdump_analyce.jpg"></p>
-
-		
-		
-	</div>
-
-</article>
-
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-04-13T19:46:00+08:00" data-updated="true" itemprop="datePublished">Apr 13<span>th</span>, 2014</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/she-ying/'>摄影</a>
-
-
-</div>
-		
-		
-          <span class="comments"><a href="/blog/2014/04/13/one-day-at-shenzhen-zoo/#comments">Comments</a></span>
-         
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2014/04/13/one-day-at-shenzhen-zoo/" itemprop="url">深圳动物园一日游</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<p>天气不错，心情也还不错。约上小伙伴，去了一趟动物园。</p>
-
-<p><img src="https://farm4.staticflickr.com/3744/13818594364_e3c8702b88_c.jpg" alt="被关着的老虎" /></p>
-
-<hr />
-
-<p><img src="https://farm8.staticflickr.com/7225/13818281645_b9dd04eb91_c.jpg" alt="小猴子" /></p>
-
-<p>更多图片，查看我的<a href="https://www.flickr.com/photos/22714894@N05/sets/72157643886838455/">Flickr相册</a></p>
 
 		
 		

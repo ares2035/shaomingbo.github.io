@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android笔记 | mingbo]]></title>
   <link href="http://mingbo.de/blog/categories/androidbi-ji/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2014-10-08T18:21:39+08:00</updated>
+  <updated>2014-10-16T22:33:19+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -12,6 +12,77 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[android数据库升级tips]]></title>
+    <link href="http://mingbo.de/blog/2014/10/16/a-strategy-for-upgrade-database-in-android/"/>
+    <updated>2014-10-16T22:18:00+08:00</updated>
+    <id>http://mingbo.de/blog/2014/10/16/a-strategy-for-upgrade-database-in-android</id>
+    <content type="html"><![CDATA[<h3>唯一不变的是变化</h3>
+
+<p>App 版本迭代的过程中，一定会遇到sqlite 数据库需要升级的情况。一个简单粗暴的解决方法，是不顾用户的数据，直接去重建各个数据表。显然，今天要分享的并不是这个粗暴的方法。</p>
+
+<h3>常见的困惑</h3>
+
+<p><code>SQLiteOpenHelper</code>提供了一个处理数据库升级的API<code>onUpgrade(final SQLiteDatabase db, int from, final int to)</code>。从语义上来看，升级策略的描述应该有一个起始点<code>from</code>，也还应该有一个终点<code>to</code>。但由于起始点的不确定性，致使这里的代码分支会略显复杂。老实讲，在写这篇日志之前，我都没有把握温柔细致的处理好这件事。</p>
+
+<h3>灵感来源于android源码</h3>
+
+<p><code>DownloadManager</code>也使用数据库存储下载状态。其子类<code>DatabaseHelper</code>将升级函数降维，把原本复杂的升级过程，分解为多个原子的升级过程，而这个原子过程是简单、确定的。直接上代码吧：</p>
+
+<p>```java
+@Override
+ public void onUpgrade(final SQLiteDatabase db, int oldV, final int newV) {</p>
+
+<pre><code>...
+//循环体内，每次只升一个版本
+for (int version = oldV + 1; version &lt;= newV; version++) {
+            upgradeTo(db, version);
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>```java</p>
+
+<p>//Upgrade database from (version &ndash; 1) to version.
+private void upgradeTo(SQLiteDatabase db, int version) {</p>
+
+<pre><code>switch (version) {
+    case 100:
+        createDownloadsTable(db);
+        break;
+    case 101:
+        createHeadersTable(db);
+        break;
+    case 102:
+        addColumn(db, DB_TABLE, Downloads.Impl.COLUMN_IS_PUBLIC_API,
+                          "INTEGER NOT NULL DEFAULT 0");
+        break;
+    case 105:
+        fillNullValues(db);
+        break;
+    ...
+    default:
+        throw new IllegalStateException("Don't know how to upgrade to " + version);
+    }
+</code></pre>
+
+<p>}
+```</p>
+
+<p>以上代码不仅逻辑清晰，而且还能很好的复用。比如在<code>onCreate</code>函数里需要初始化数，就可以直接调用<code>upgradeTo(db, CURRENT_VERSION)</code>.这样一来，无论是从哪个版本升级上来，都能平滑的处理版本问题了。</p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="https://android.googlesource.com/platform/packages/providers/DownloadProvider/+/master/src/com/android/providers/downloads/DownloadProvider.java#228">DownloadProvider</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[谈谈android屏幕适配]]></title>
@@ -253,47 +324,6 @@ start adbd
 <li><a href="https://developer.android.com/guide/topics/ui/how-android-draws.html">How Android Draws Views</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Listview 子控件重复加载]]></title>
-    <link href="http://mingbo.de/blog/2013/11/04/listview-re-getview/"/>
-    <updated>2013-11-04T20:45:00+08:00</updated>
-    <id>http://mingbo.de/blog/2013/11/04/listview-re-getview</id>
-    <content type="html"><![CDATA[<p>这是一个常见的listview 资源文件的写法。
-<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>listview资源文件 </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>ListView
-</span><span class='line'>    android:layout_width=&quot;match_parent&quot;
-</span><span class='line'>    android:layout_height=&quot;wrap_content&quot;
-</span><span class='line'>    android:id=&quot;@+id/listView&quot;
-</span><span class='line'>/<span class="ni">&amp;gt;</span>
-</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;p&gt;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>注意到<code>android:layout_height</code> 被设置为<code>wrap_content</code>，这似乎很合理。但如果我们留心的话可以发现，与这个listview 关联的adapter对象的<code>getView()</code>方法被<strong>重复调用了好几遍</strong>!这对于那些依赖listview 展示大量数据的应用来说，绝对是性能打击。</p>
-
-<h2>解决方案：</h2>
-
-<p>将这个属性设置为<code>match_parent</code> 或者固定的数值</p>
-
-<h2>原因：</h2>
-
-<p>通过分析<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/AbsListView.java">AbsListView</a> 以及<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/ListView.java">Listview</a>的代码，发现答案应该在<code>onMeasure()</code>方法里：由于<code>wrap_content</code> 并没有指定一个固定值，<strong>系统需要通过尝试layout来满足<code>wrap_content</code></strong>。每次尝试都会调用<code>onMeasure()</code>,<code>layoutChildren()</code>,使得<code>getView()</code>被重复调用</p>
 ]]></content>
   </entry>
   

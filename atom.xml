@@ -4,7 +4,7 @@
   <title><![CDATA[mingbo]]></title>
   <link href="http://mingbo.de/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2014-10-08T18:21:39+08:00</updated>
+  <updated>2014-10-16T22:33:19+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -12,6 +12,102 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[android数据库升级tips]]></title>
+    <link href="http://mingbo.de/blog/2014/10/16/a-strategy-for-upgrade-database-in-android/"/>
+    <updated>2014-10-16T22:18:00+08:00</updated>
+    <id>http://mingbo.de/blog/2014/10/16/a-strategy-for-upgrade-database-in-android</id>
+    <content type="html"><![CDATA[<h3>唯一不变的是变化</h3>
+
+<p>App 版本迭代的过程中，一定会遇到sqlite 数据库需要升级的情况。一个简单粗暴的解决方法，是不顾用户的数据，直接去重建各个数据表。显然，今天要分享的并不是这个粗暴的方法。</p>
+
+<h3>常见的困惑</h3>
+
+<p><code>SQLiteOpenHelper</code>提供了一个处理数据库升级的API<code>onUpgrade(final SQLiteDatabase db, int from, final int to)</code>。从语义上来看，升级策略的描述应该有一个起始点<code>from</code>，也还应该有一个终点<code>to</code>。但由于起始点的不确定性，致使这里的代码分支会略显复杂。老实讲，在写这篇日志之前，我都没有把握温柔细致的处理好这件事。</p>
+
+<h3>灵感来源于android源码</h3>
+
+<p><code>DownloadManager</code>也使用数据库存储下载状态。其子类<code>DatabaseHelper</code>将升级函数降维，把原本复杂的升级过程，分解为多个原子的升级过程，而这个原子过程是简单、确定的。直接上代码吧：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onUpgrade</span><span class="o">(</span><span class="kd">final</span> <span class="n">SQLiteDatabase</span> <span class="n">db</span><span class="o">,</span> <span class="kt">int</span> <span class="n">oldV</span><span class="o">,</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">newV</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="c1">//循环体内，每次只升一个版本</span>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">version</span> <span class="o">=</span> <span class="n">oldV</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span> <span class="n">version</span> <span class="o">&lt;=</span> <span class="n">newV</span><span class="o">;</span> <span class="n">version</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">upgradeTo</span><span class="o">(</span><span class="n">db</span><span class="o">,</span> <span class="n">version</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//Upgrade database from (version - 1) to version.</span>
+</span><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="nf">upgradeTo</span><span class="o">(</span><span class="n">SQLiteDatabase</span> <span class="n">db</span><span class="o">,</span> <span class="kt">int</span> <span class="n">version</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="o">(</span><span class="n">version</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">100</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">createDownloadsTable</span><span class="o">(</span><span class="n">db</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">101</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">createHeadersTable</span><span class="o">(</span><span class="n">db</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">102</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">addColumn</span><span class="o">(</span><span class="n">db</span><span class="o">,</span> <span class="n">DB_TABLE</span><span class="o">,</span> <span class="n">Downloads</span><span class="o">.</span><span class="na">Impl</span><span class="o">.</span><span class="na">COLUMN_IS_PUBLIC_API</span><span class="o">,</span>
+</span><span class='line'>                              <span class="s">&quot;INTEGER NOT NULL DEFAULT 0&quot;</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">case</span> <span class="mi">105</span><span class="o">:</span>
+</span><span class='line'>            <span class="n">fillNullValues</span><span class="o">(</span><span class="n">db</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;Don&#39;t know how to upgrade to &quot;</span> <span class="o">+</span> <span class="n">version</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>以上代码不仅逻辑清晰，而且还能很好的复用。比如在<code>onCreate</code>函数里需要初始化数，就可以直接调用<code>upgradeTo(db, CURRENT_VERSION)</code>.这样一来，无论是从哪个版本升级上来，都能平滑的处理版本问题了。</p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="https://android.googlesource.com/platform/packages/providers/DownloadProvider/+/master/src/com/android/providers/downloads/DownloadProvider.java#228">DownloadProvider</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[谈谈android屏幕适配]]></title>
