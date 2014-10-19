@@ -9,7 +9,7 @@
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content="Oct 16th, 2014 android笔记 Comments Android数据库升级tips 唯一不变的是变化 App 版本迭代的过程中，一定会遇到sqlite 数据库需要升级的情况。一个简单粗暴的解决方法，是不顾用户的数据，直接去重建各个数据表。显然，今天要分享的并不是这个粗暴的方法 &hellip;">
+	<meta name="description" content="Oct 19th, 2014 android笔记 Comments 警惕libgl1-mesa-glx:i386 编译android工程应该来说没啥技术含量，按照官方的guide line一步一步的做，基本上都还OK。但，之所以想写个日志，主要是因为被这个工程的编译环境搞得有点抓狂了。 &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -94,6 +94,78 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner">
 <div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-19T15:13:00+08:00" data-updated="true" itemprop="datePublished">Oct 19<span>th</span>, 2014</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
+
+
+</div>
+		
+		
+          <span class="comments"><a href="/blog/2014/10/19/preparing-build-android/#comments">Comments</a></span>
+         
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2014/10/19/preparing-build-android/" itemprop="url">警惕libgl1-mesa-glx:i386</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>编译android工程应该来说没啥技术含量，按照官方的guide line一步一步的做，基本上都还OK。但，之所以想写个日志，主要是因为被这个工程的编译环境搞得有点抓狂了。起初是在os x上折腾，之后发现各种依赖关系搞起来太费神，就开始了转投传说中最稳定、顺畅的ubuntu 12.04了。万万没有想到，在虚拟机上跑了4个小时，最后给我看这个：</p>
+
+<p><img class="center" src="/images/201410/built_android_failed.png"></p>
+
+<p>刚查到解决方案的时候，打算给虚拟机更大的内存跑编译任务，于是重启了。重启之后，蛋疼的卡在了logo界面。一顿排查，发现原来是在准备编译环境的时候出了问题。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get install git gnupg flex bison gperf build-essential <span class="se">\</span>
+</span><span class='line'>  zip curl libc6-dev libncurses5-dev:i386 x11proto-core-dev <span class="se">\</span>
+</span><span class='line'>  libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 <span class="se">\</span>
+</span><span class='line'>  libgl1-mesa-dev g++-multilib mingw32 tofrodos <span class="se">\</span>
+</span><span class='line'>  python-markdown libxml2-utils xsltproc zlib1g-dev:i386
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>症结所在</h3>
+
+<p>Ubuntu 12.04.5 上执行<code>sudo apt-get install libgl1-mesa-glx:i386</code>时，会提示你安装<code>libgl1-mesa-dri:i386</code>。如果按照这个建议执行，你会发现安装程序会帮你删除一批不兼容的软件，其中包括<code>xorg</code>，最终导致你无法进入桌面。</p>
+
+<p><img class="center" src="/images/201410/remove_xorg_when_install_lib.png"></p>
+
+<h3>解决办法</h3>
+
+<p>将<code>libgl1-mesa-glx:i386</code>替换为<code>libgl1-mesa-glx-lts-&lt;release&gt;:i386</code>，其中release 根据ubuntu的版本可以是<code>Quantal</code>、<code>Raring</code>、<code>Saucy</code>以及<code>Trusty</code>。我自己安装的是<code>libgl1-mesa-glx-lts-Trusty:i386</code>。至此，该问题完美解决。</p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="https://wiki.ubuntu.com/Kernel/LTSEnablementStack">LTS Enablement Stacks</a></li>
+</ul>
+
+
+		
+		
+	</div>
+
+</article>
 
 
     <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
@@ -326,58 +398,6 @@
 <li><a href="https://developer.android.com/guide/topics/resources/providing-resources.html#BestMatch">How Android Finds the Best-matching Resource</a></li>
 </ul>
 
-
-		
-		
-	</div>
-
-</article>
-
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-04T23:41:00+08:00" data-updated="true" itemprop="datePublished">Oct 4<span>th</span>, 2014</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/ma-nong-gong-ju/'>码农工具</a>
-
-
-</div>
-		
-		
-          <span class="comments"><a href="/blog/2014/10/04/tcpdump-for-android/#comments">Comments</a></span>
-         
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2014/10/04/tcpdump-for-android/" itemprop="url">TCPDump for Android</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<h3>抓包要有效率</h3>
-
-<p>前段时间一直在做一款社交类答题的App。深有体会的是，不管是前期研究竞品，还是后期和服务端联调，抓包调试都是必不可缺少的环节，而且抓包的效率深深的影响着开发的效率。</p>
-
-<p>由于REST API 的盛行，已经有大量现成的工具可以方便的进行抓包，比如大名鼎鼎的<a href="http://www.telerik.com/fiddler">Fiddler</a>， 以及免费且跨平台的<a href="https://github.com/AlloyTeam/Rythem">Rythem</a>。应用开发者只需要简单的<a href="http://docs.telerik.com/fiddler/configure-fiddler/tasks/ConfigureForAndroid">设置代理</a>，抓包信息即可尽收眼底。而非REST API的抓包则相对来说<a href="http://www.kandroid.org/online-pdk/guide/tcpdump.html">就麻烦了许多</a>，每抓一次包既要碰电脑敲命令，又要弄手机进行测试操作，很是忧桑。因此，为了提升效率，本猿就想到基于<a href="http://www.tcpdump.org/">tcpdump</a> 重新定制一个工具。想要的效果也不复杂，一个全局的悬浮窗，给出抓包控制按钮即可。这样调试起来，就不用来回切换那么麻烦了。</p>
-
-<h3>编译tcpdump</h3>
-
-<p>首先的工作当然是编译一个可用的tcpdump。虽然Android NDK 提供了方便的交叉编译工具，但是编译过程还是有<a href="https://github.com/chatch/tcpdump-android/blob/master/build-tcpdump">不少的坑</a>。比如android 不支持<code>setprotoent</code>以及<code>endprotoent</code>等。详细的编译过程，这里就不做讨论了。这里提供一个arm 版本的<a href="http://pan.baidu.com/s/1vpMFG">tcpdump for android 下载</a>。（基于tcpdump-4.6.2.tar.gz，libpcap-1.6.2.tar.gz）</p>
-
-<h3>开发工具</h3>
-
-<p>整个工具只有一个界面，一个全局窗口。代码在放在<a href="https://github.com/shaomingbo/EasyDump">Github 上</a>，当然你也可以直接从<a href="https://play.google.com/store/apps/details?id=de.mingbo.easydump">Google play下载</a>、使用。噢，前两天看到一个<a href="https://community.emc.com/people/Zhang%2CJiawen">妹纸</a>发了一张图和抓包相关，而且还不错，这里也mark 一下。</p>
-
-<p><img class="center" src="/images/tcpdump_analyce.jpg"></p>
 
 		
 		
