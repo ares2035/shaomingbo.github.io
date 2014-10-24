@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: android笔记 | mingbo]]></title>
+  <title><![CDATA[Category: android笔记 | 邵明博]]></title>
   <link href="http://mingbo.de/blog/categories/androidbi-ji/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2014-10-19T20:28:28+08:00</updated>
+  <updated>2014-10-24T14:56:41+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -14,15 +14,126 @@
 
   
   <entry>
+    <title type="html"><![CDATA[android内存泄露及分析工具]]></title>
+    <link href="http://mingbo.de/blog/2014/10/24/avoiding-android-memory-leaks/"/>
+    <updated>2014-10-24T14:42:00+08:00</updated>
+    <id>http://mingbo.de/blog/2014/10/24/avoiding-android-memory-leaks</id>
+    <content type="html"><![CDATA[<p>话说，任何开发环境，想要取得上乘的性能，内存优化是一个不可避免的话题。虽然android 开发过程中，有<code>GC</code>陪伴，但这并不意味着你可以完全忽略内存的分配与释放。这是因为，不恰当的代码仍然会导致内存泄露，以至于<code>GC</code>也无力回天。</p>
+
+<h3>内存限制</h3>
+
+<p>为了维持多任务的运行环境，android 给每个运行的应用规定了一个内存上限（因不同设备的物理内存大小而变化，常见的有16M~48M不等）。每当你的应用企图在触碰上限的情况下分配内存，就会引发<code>OutOfMemoryError</code>。</p>
+
+<h3>内存泄露</h3>
+
+<p>虚拟机中的内存泄露基本上就一条：代码残留了对象，让<code>GC</code>无法回收。也许这个情况一时半会不会翻起大浪，但也可能在下一秒，就触碰<strong>内存限制</strong>，导致程序崩溃。所以，内存泄露的BUG通常都非常隐蔽、随机、让人头大。</p>
+
+<p>常见的泄露有以下几种：</p>
+
+<ul>
+<li><code>Cursor</code>没有关闭</li>
+<li><code>registerReceiver</code>之后没有成对的<code>unregisterReceiver</code></li>
+<li>I/O Stream没有关闭</li>
+<li><code>Context</code>泄露</li>
+</ul>
+
+
+<p>前面3种情况，没啥好说的，在代码层面稍加注意即可避免。最后一种情况可能有些变种需要注意，这里使用2个例子尝试着描述一下。首先借用Romain Guy的例子：</p>
+
+<p>```java
+private static Drawable sBackground;</p>
+
+<p>@Override
+protected void onCreate(Bundle state) {
+  super.onCreate(state);</p>
+
+<p>  TextView label = new TextView(this);
+  label.setText(&ldquo;Leaks are bad&rdquo;);</p>
+
+<p>  if (sBackground == null) {</p>
+
+<pre><code>sBackground = getDrawable(R.drawable.large_bitmap);
+</code></pre>
+
+<p>  }
+  label.setBackgroundDrawable(sBackground);</p>
+
+<p>  setContentView(label);
+}
+```</p>
+
+<p>万恶的静态变量出现了，引用关系<code>Drawable</code>&ndash;> <code>TextView</code>&ndash;> <code>Activity</code>导致整个Activity 无法被回收，解决方案也就显而易见了。另外一种<code>Context</code>泄露是由于非静态内部类引用导致的:</p>
+
+<p>```java</p>
+
+<p>public class DemoActivity extends Activity {</p>
+
+<pre><code>class LeakRUN implements Runnable {
+
+    @Override
+    public void run() {
+        try {
+            TimeUnit.DAYS.sleep(365);
+        } catch (InterruptedException e) {
+        }
+    }
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>正确的处理这种泄露应当仿造<code>ViewRoot</code>中的内部类<code>W</code>那样使用<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.1_r2/android/view/ViewRoot.java#ViewRoot.W">弱引用</a>。这么做的好处是，一来不会出现空指针，二来不会导致内存泄露。</p>
+
+<h2>内存工具</h2>
+
+<p>尽管上面罗列了种种常见的泄露情况，但实际开发中遇到的现象总是千奇百怪的，解决泄露的方法也会因情况而异。所以，这里更重要的是需要了解如何使用工具来发现应用内存是如何泄露的。</p>
+
+<h3>Logcat</h3>
+
+<p>越简单的方法，往往越直接有效。Logcat 提供实时的虚拟机日志，每当垃圾回收发生的时候，我们会看到这样的日志<code>D/dalvikvm: &lt;GC_Reason&gt; &lt;Amount_freed&gt;, &lt;Heap_stats&gt;, &lt;External_memory_stats&gt;, &lt;Pause_time&gt;</code>。其中，垃圾回收的原因、回收内存的大小这些并不是现在关注的重点，我们的兴趣点应该放在<strong>堆的状态</strong>上。这个状态通常会提供两个数值，“空闲内存的比例”以及“内存占用的比例”。如果后者在每次垃圾回收之后，持续上升，<strong>那么几乎就可以断定出现内存泄露了</strong>。</p>
+
+<h3>Monitor</h3>
+
+<p><strong>Monitor</strong>是一个工具大集合，开发者可以从<code>Android studio/ Eclipse</code>直接找到它的入口，调试人员也可以直接从目录<code>&lt;sdk&gt;/tools/</code>下找到它。比起Logcat 被动的查看log, <code>Heap Update</code>提供了可视化的内存数据界面以及垃圾回收的操作接口。连续的在观察数据、回收内存以及应用交互的过程中往返，可以帮助我们定位<strong>“哪些操作”引起了内存激增</strong>。<code>Allocation Tracker</code>则提供了更为精确的<strong>代码级定位</strong>。</p>
+
+<p><img class="center" src="/images/201410/monitor-vmheap.png"></p>
+
+<h3>adb</h3>
+
+<p>adb 命令行工具提供的内存查询接口则更为灵活，信息也更加丰富。一行命令<code>adb shell dumpsys meminfo &lt;package_name&gt;</code>即可完成操作。有精力的开发者完全可以依此定制一款自己的工具来帮助内存泄露的定位。一般来说，我们可以关注<code>Pss Total</code>以及<code>Private Dirty</code>这两项数据来掌握内存信息，而<code>Objects</code>栏目的数据可以帮助引导我们更直观的发现泄漏的情况。</p>
+
+<p><img class="center" src="/images/201410/dumpsys_meminfo.png"></p>
+
+<h3>Heap Dump</h3>
+
+<p>最有效的工具，肯定需要最后出场。在Monitor 中选择<code>Dump HPROF file</code>，可以导出整个设备的虚拟机内存信息。由于该文件并不是传统的java 虚拟机内存文件，因此需要使用android sdk 中的<code>hprof-conv</code>工具对其进行转换。对于转换后的文件，可以使用<a href="http://www.eclipse.org/mat/downloads.php">Eclipse Memory Analyzer Tool (MAT)</a>进行分析。该工具提供两种不同的视图（<code>Histogram</code>和<code>Dominator tree</code>）分别从不同的视角帮助你分析内存。值得一提的是，如果需要更为精确的导出时机的话，还可以在项目的代码中进行控制。</p>
+
+<p>以上工具的具体使用方法，可以参考以下链接的文献，这里就不再赘述了。</p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="http://www.littleeye.co/blog/2013/06/11/android-memory-management-understanding-app-pss/">Android Memory Management: Understanding App PSS</a></li>
+<li><a href="http://www.youtube.com/watch?v=_CruQY55HOk">Memory management for Android Apps</a></li>
+<li><a href="http://android-developers.blogspot.com/2009/01/avoiding-memory-leaks.html">Avoiding memory leaks</a></li>
+<li><a href="http://developer.android.com/training/articles/memory.html">Managing your app&rsquo;s memory</a></li>
+<li><a href="https://developer.android.com/tools/debugging/debugging-memory.html">Investigating Your RAM Usage</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[警惕libgl1-mesa-glx:i386]]></title>
     <link href="http://mingbo.de/blog/2014/10/19/preparing-build-android/"/>
     <updated>2014-10-19T15:13:00+08:00</updated>
     <id>http://mingbo.de/blog/2014/10/19/preparing-build-android</id>
-    <content type="html"><![CDATA[<p>编译android工程应该来说没啥技术含量，按照官方的guide line一步一步的做，基本上都还OK。但，之所以想写个日志，主要是因为被这个工程的编译环境搞得有点抓狂了。起初是在os x上折腾，之后发现各种依赖关系搞起来太费神，就开始了转投传说中最稳定、顺畅的ubuntu 12.04了。万万没有想到，在虚拟机上跑了4个小时，最后给我看这个：</p>
+    <content type="html"><![CDATA[<p>编译android工程应该来说没啥技术含量，按照官方的guide line一步一步的做，基本上都还OK。但，之所以想写个日志，主要是因为被这个工程的编译环境搞得有点抓狂了。起初是在<code>osx</code>上折腾，之后发现各种依赖关系搞起来太费神，就开始了转投传说中最稳定、顺畅的ubuntu 12.04了。万万没有想到，在虚拟机上跑了4个小时，最后给我看这个：</p>
 
 <p><img class="center" src="/images/201410/built_android_failed.png"></p>
 
-<p>刚查到解决方案的时候，打算给虚拟机更大的内存跑编译任务，于是重启了。重启之后，蛋疼的卡在了logo界面。一顿排查，发现原来是在准备编译环境的时候出了问题。</p>
+<p>刚查到<a href="http://blog.csdn.net/g_r_u_b/article/details/8644745">解决方案</a>的时候，打算给虚拟机更大的内存跑编译任务，于是重启了。重启之后，蛋疼的卡在了logo界面。一顿排查，发现原来是在准备编译环境的时候出了问题。</p>
 
 <p><code>bash
 sudo apt-get install git gnupg flex bison gperf build-essential \
@@ -242,81 +353,6 @@ start adbd
 <li>开启无线adb后，想要通过WIFI连接手机，请先确保电脑和手机在同一网段</li>
 <li>连接：adb connect android-device-ip</li>
 <li>终止：adb disconnect</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[进程与线程]]></title>
-    <link href="http://mingbo.de/blog/2013/11/17/processes-nand-threads-notes/"/>
-    <updated>2013-11-17T15:57:00+08:00</updated>
-    <id>http://mingbo.de/blog/2013/11/17/processes-nand-threads-notes</id>
-    <content type="html"><![CDATA[<p>Android 组件具有天生的跨进程特性，因此，android 应用开发者通常是不需要关注进程概念的。但这也往往导致我们忽视了进程的一些细节问题。这里，就目前的认识做一些小结。</p>
-
-<p>Android 是以<strong>进程对用户的重要性</strong>为依据来管理进程的。其重要性分为5个层级，重要性越低的进程越容易被系统干掉。</p>
-
-<ul>
-<li>Foreground process</li>
-<li>Visible process</li>
-<li>Service process</li>
-<li>Background process</li>
-<li>Empty process</li>
-</ul>
-
-
-<h2>Foreground process</h2>
-
-<p>优先级最高，即使在系统内存吃紧的情况下不到万不得已，是不会杀这类进程的。如果这类进程被杀，通常是因为用户界面卡得不能动弹而被迫执行的。这类进程所包含的组件通常满足以下特征：</p>
-
-<pre><code>1.  activity 正在与用户进行交互
-2.  service 绑定的activity 正在与用户交互
-3.  service 执行了`startForeground()`
-4.  service 正在执行生命周期回调函数
-5.  BroadcastReceiver 正在执行`onReceived()`
-</code></pre>
-
-<h2>Visible process</h2>
-
-<p>优先级次之，系统在保证Foreground process 的前提下，保证这类进程的运行。这类进程虽不直接与用户交互，但用户能在界面上看到与之相关的组件。这些组件通常会有以下特征：</p>
-
-<pre><code>1.  activity 在Paused 状态，处于可视但不可交互的状态
-2.  service 绑定的activity 处于paused 状态
-</code></pre>
-
-<h2>Service process</h2>
-
-<p>虽然没有与用户直接交互，但它们所做做的事情与用户息息相关。所以系统会按照优先级，在保留上述进程的前提下，尽可能的保留此类进程。不符合上面描述的Service 进程都属于Service Process。</p>
-
-<h2>Background process</h2>
-
-<p>随时会被系统回收。为了提升用户体验，系统使用LRU 缓存维护这类进程，使得用户最近使用的进程推迟回收。这类进程通常只持有不可视组件，如paused 状态下的activity。</p>
-
-<h2>Empty process</h2>
-
-<p>这类进程的存在仅仅只是为了让启动进程看起来更快一些，也因此更容易被系统回收。</p>
-
-<h2>android:multiprocess 属性</h2>
-
-<p>默认情况下，该设置为false，表示该组件会在定义组件的应用进程中运行。当第三方应用调用该组件时，会有2个进程启动：第三方应用以及定义组件的应用。</p>
-
-<p>如果该属性设置为true，表示允许该组件“嫁”出去：当第三方应用调用该组件时，会直接在该进程中构造组件。这么做会让组件在整个系统中的数量增加，但与调用者之间的交互更为紧密。值得一提的是，在实际开发中，这么做需要考虑并发的复杂性。</p>
-
-<h2>零散的知识点</h2>
-
-<ul>
-<li>一个进程如果包含多个组件，那么，该进程取组件中优先级最高的作为自己的优先级</li>
-<li>一个进程的优先级会因为其他进程的依赖而提升</li>
-<li>由于service 比后台进程优先级高，一些长时间操作在service 中运行更有安全感</li>
-<li>IBinder、 ContentProvider 的方法通常要注意线程安全</li>
-</ul>
-
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="https://developer.android.com/guide/components/processes-and-threads.html">Processes and Threads</a></li>
-<li><a href="https://developer.android.com/guide/topics/manifest/activity-element.html#multi">activity属性</a></li>
 </ul>
 
 ]]></content>
