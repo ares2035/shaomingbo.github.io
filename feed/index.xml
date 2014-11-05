@@ -4,7 +4,7 @@
   <title><![CDATA[邵明博]]></title>
   <link href="http://mingbo.de/feed" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2014-10-24T14:56:41+08:00</updated>
+  <updated>2014-11-05T11:11:04+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -75,7 +75,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>万恶的静态变量出现了，引用关系<code>Drawable</code>&ndash;> <code>TextView</code>&ndash;> <code>Activity</code>导致整个Activity 无法被回收，解决方案也就显而易见了。另外一种<code>Context</code>泄露是由于非静态内部类引用导致的:</p>
+<p>万恶的静态变量出现了，引用关系<code>Drawable</code>&ndash;> <code>TextView</code>&ndash;> <code>Activity</code>导致整个Activity 无法被回收。此外，经常被讨论的Webview 泄露，情况也是类似的。解决方法可以参考这个<a href="http://stackoverflow.com/questions/3130654/memory-leak-in-webview">帖子</a>。这里要谈的另外一种<code>Context</code>泄露是由于非静态内部类引用导致的:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
