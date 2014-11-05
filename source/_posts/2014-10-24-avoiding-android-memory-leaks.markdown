@@ -45,7 +45,7 @@ protected void onCreate(Bundle state) {
 }
 ```
 
-万恶的静态变量出现了，引用关系`Drawable`-> `TextView`-> `Activity`导致整个Activity 无法被回收，解决方案也就显而易见了。另外一种`Context`泄露是由于非静态内部类引用导致的:
+万恶的静态变量出现了，引用关系`Drawable`-> `TextView`-> `Activity`导致整个Activity 无法被回收。此外，经常被讨论的Webview 泄露，情况也是类似的。解决方法可以参考这个[帖子][4]。这里要谈的另外一种`Context`泄露是由于非静态内部类引用导致的:
 
 ```java
 
@@ -99,3 +99,4 @@ adb 命令行工具提供的内存查询接口则更为灵活，信息也更加�
 [1]: http://developer.android.com/guide/components/processes-and-threads.html
 [2]: http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.1_r2/android/view/ViewRoot.java#ViewRoot.W
 [3]: http://www.eclipse.org/mat/downloads.php
+[4]: http://stackoverflow.com/questions/3130654/memory-leak-in-webview
