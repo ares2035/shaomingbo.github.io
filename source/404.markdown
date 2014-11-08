@@ -3,5 +3,4 @@ layout: page
 sharing: false
 ---
 
-## Crap!!
-Looks like the page you're looking for doesn't exist. Just go [home](/) and try again!
+<script type="text/javascript" src="http://www.qq.com/404/search_children.js" charset="utf-8"></script>
