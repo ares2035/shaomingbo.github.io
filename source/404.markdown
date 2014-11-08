@@ -3,4 +3,5 @@ layout: page
 sharing: false
 ---
 
-<script type="text/javascript" src="http://www.qq.com/404/search_children.js" charset="utf-8"></script>
+## 哎哟
+看起来你访问的页面并不存在. 也许你应该去[首页](/)搜索看看 !
