@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android笔记 | 邵明博]]></title>
   <link href="http://mingbo.de/blog/categories/androidbi-ji/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2014-11-09T13:37:39+08:00</updated>
+  <updated>2014-11-11T15:27:30+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -12,6 +12,44 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[蛋疼的BUG：binder事务异常]]></title>
+    <link href="http://mingbo.de/blog/2014/11/11/failed-binder-transaction/"/>
+    <updated>2014-11-11T15:15:00+08:00</updated>
+    <id>http://mingbo.de/blog/2014/11/11/failed-binder-transaction</id>
+    <content type="html"><![CDATA[<p>一句log"<strong>!!! FAILED BINDER TRANSACTION !!!</strong>&ldquo;，伴随着App的崩溃，留下的是程序员深深的思考。定位到android 的源码，此log 出自<code>android_util_Binder.cpp</code>。</p>
+
+<p>```c++</p>
+
+<p>void signalExceptionForError(JNIEnv* env, jobject obj, status_t err, bool canThrowRemoteException)
+{</p>
+
+<pre><code>switch (err) {
+    ...
+    case FAILED_TRANSACTION:
+        ALOGE("!!! FAILED BINDER TRANSACTION !!!");
+        // TransactionTooLargeException is a checked exception, only throw from certain methods.
+        // FIXME: Transaction too large is the most common reason for FAILED_TRANSACTION
+        //        but it is not the only one.  The Binder driver can return BR_FAILED_REPLY
+        //        for other reasons also, such as if the transaction is malformed or
+        //        refers to an FD that has been closed.  We should change the driver
+        //        to enable us to distinguish these cases in the future.
+        jniThrowException(env, canThrowRemoteException? "android/os/TransactionTooLargeException": "java/lang/RuntimeException", NULL);
+        break;
+    ...
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>很明显，按照注释的描述，我们遇到的问题就转换为了<code>TransactionTooLargeException</code>引起的程序崩溃了。去<a href="http://developer.android.com/reference/android/os/TransactionTooLargeException.html">官网</a>一查，它给出的说明更清晰：远程调用的时候，参数和返回值都以Parcel 的形式保存在<strong>Binder 事务的缓存对象</strong>中。如果参数或返回值过大，则会抛出<code>TransactionTooLargeException</code>异常。</p>
+
+<p>按照这个提示，我跟到驱动层的<code>binder.c</code>的<a href="https://android.googlesource.com/kernel/common.git/+/android-2.6.39/drivers/staging/android/binder.c">代码</a>看了一下<code>binder_transaction</code>以及<code>binder_alloc_buf</code>方法，证实了前面注释代码所言非虚。另外，官方文档提到了一个1M 大小的buffer空间的限制，我翻了几个版本的代码来看，发现其实这个数值并没有写死。buffer 应该是不大于2M而不是它说的1M，但正如文档所说，由于binder 被所有跨进程通讯所共享，即使你的parcel 不大，但是使用binder 的人很多，也有可能造成上述异常。所以，这里解决问题的方法，应该是尽可能的传递小一点的parcel或者使用其他数据通讯方案。是的，说的就是你，不要用binder 传那么多那么大的高清图片了！</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[android内存泄露及分析工具]]></title>
@@ -312,47 +350,6 @@ private void upgradeTo(SQLiteDatabase db, int version) {</p>
 <li><a href="https://developer.android.com/training/multiscreen/screensizes.html">Supporting Different Screen Sizes</a></li>
 <li><a href="https://developer.android.com/guide/practices/screens_support.html">Supporting Multiple Screens</a></li>
 <li><a href="https://developer.android.com/guide/topics/resources/providing-resources.html#BestMatch">How Android Finds the Best-matching Resource</a></li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[android无线调试]]></title>
-    <link href="http://mingbo.de/blog/2013/12/03/debug-over-wifi/"/>
-    <updated>2013-12-03T20:04:00+08:00</updated>
-    <id>http://mingbo.de/blog/2013/12/03/debug-over-wifi</id>
-    <content type="html"><![CDATA[<p>使用无线调试对于我来讲，只有一个理由：爱惜手机电池。长时间的调试过程，使得我们的爱机必须通过USB 与电脑相连。长此以往，手机电池就会变得非常不经用。</p>
-
-<p>很早之前，以为只有获得ROOT 权限的手机才能开启这个功能，直到有一天被我发现statckoverflow 上的一个<a href="http://stackoverflow.com/questions/2604727/how-can-i-connect-to-android-with-adb-over-tcp">帖子</a>。（之所以会有这个错觉，是因为看到Google Play上提供的相关APP 都有root权限的声明）。那么，这里我就分别总结一下，不同情况下该如何使用<strong>无线adb</strong></p>
-
-<h2>如果手机拥有ROOT 权限</h2>
-
-<p>在shell 里执行以下命令：
-<code>bash 开启adb无线调试
-su
-setprop service.adb.tcp.port 5555
-stop adbd
-start adbd
-</code>
-这也是大部分完成无线调试APP的核心基础：在应用内使用Process 对象来执行这些命令。其中<code>start/stop adbd</code>，你可以通过手动开启/关闭调试模式来完成同样的目的。如果希望回到usb 模式，则应该将<code>tcp.port</code>修改回-1。</p>
-
-<h2>如果手机没有ROOT 权限</h2>
-
-<ul>
-<li>事情并没有因为少一个权限而变得麻烦</li>
-<li>首先将手机通过USB连接到PC</li>
-<li>在命令行中执行<code>adb tcpip 5555</code>，即可开启无线adb了</li>
-<li>想要恢复有线adb时，在保持手机与PC连接的前提下，命令行中执行<code>adb usb</code>即可</li>
-</ul>
-
-
-<h2>连接与断开手机</h2>
-
-<ul>
-<li>开启无线adb后，想要通过WIFI连接手机，请先确保电脑和手机在同一网段</li>
-<li>连接：adb connect android-device-ip</li>
-<li>终止：adb disconnect</li>
 </ul>
 
 ]]></content>

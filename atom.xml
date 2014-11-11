@@ -4,7 +4,7 @@
   <title><![CDATA[邵明博]]></title>
   <link href="http://mingbo.de/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2014-11-09T13:37:39+08:00</updated>
+  <updated>2014-11-11T15:27:30+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -12,6 +12,56 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[蛋疼的BUG：binder事务异常]]></title>
+    <link href="http://mingbo.de/blog/2014/11/11/failed-binder-transaction/"/>
+    <updated>2014-11-11T15:15:00+08:00</updated>
+    <id>http://mingbo.de/blog/2014/11/11/failed-binder-transaction</id>
+    <content type="html"><![CDATA[<p>一句log&#8221;<strong>!!! FAILED BINDER TRANSACTION !!!</strong>&ldquo;，伴随着App的崩溃，留下的是程序员深深的思考。定位到android 的源码，此log 出自<code>android_util_Binder.cpp</code>。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">signalExceptionForError</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">obj</span><span class="p">,</span> <span class="n">status_t</span> <span class="n">err</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">canThrowRemoteException</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>        <span class="k">case</span> <span class="nl">FAILED_TRANSACTION:</span>
+</span><span class='line'>            <span class="n">ALOGE</span><span class="p">(</span><span class="s">&quot;!!! FAILED BINDER TRANSACTION !!!&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="c1">// TransactionTooLargeException is a checked exception, only throw from certain methods.</span>
+</span><span class='line'>            <span class="c1">// FIXME: Transaction too large is the most common reason for FAILED_TRANSACTION</span>
+</span><span class='line'>            <span class="c1">//        but it is not the only one.  The Binder driver can return BR_FAILED_REPLY</span>
+</span><span class='line'>            <span class="c1">//        for other reasons also, such as if the transaction is malformed or</span>
+</span><span class='line'>            <span class="c1">//        refers to an FD that has been closed.  We should change the driver</span>
+</span><span class='line'>            <span class="c1">//        to enable us to distinguish these cases in the future.</span>
+</span><span class='line'>            <span class="n">jniThrowException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">canThrowRemoteException</span><span class="o">?</span> <span class="s">&quot;android/os/TransactionTooLargeException&quot;</span><span class="o">:</span> <span class="s">&quot;java/lang/RuntimeException&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>很明显，按照注释的描述，我们遇到的问题就转换为了<code>TransactionTooLargeException</code>引起的程序崩溃了。去<a href="http://developer.android.com/reference/android/os/TransactionTooLargeException.html">官网</a>一查，它给出的说明更清晰：远程调用的时候，参数和返回值都以Parcel 的形式保存在<strong>Binder 事务的缓存对象</strong>中。如果参数或返回值过大，则会抛出<code>TransactionTooLargeException</code>异常。</p>
+
+<p>按照这个提示，我跟到驱动层的<code>binder.c</code>的<a href="https://android.googlesource.com/kernel/common.git/+/android-2.6.39/drivers/staging/android/binder.c">代码</a>看了一下<code>binder_transaction</code>以及<code>binder_alloc_buf</code>方法，证实了前面注释代码所言非虚。另外，官方文档提到了一个1M 大小的buffer空间的限制，我翻了几个版本的代码来看，发现其实这个数值并没有写死。buffer 应该是不大于2M而不是它说的1M，但正如文档所说，由于binder 被所有跨进程通讯所共享，即使你的parcel 不大，但是使用binder 的人很多，也有可能造成上述异常。所以，这里解决问题的方法，应该是尽可能的传递小一点的parcel或者使用其他数据通讯方案。是的，说的就是你，不要用binder 传那么多那么大的高清图片了！</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[android内存泄露及分析工具]]></title>

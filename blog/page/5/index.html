@@ -9,7 +9,11 @@
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content="Nov 4th, 2013 android笔记 Comments Service 心经 Service 作为一个“看不见”的android 组件，天然的就应该为Android 程序去处理那些费事费力的苦活。但即使这样，作为四大组件之一的它依然运行在主线程上。也就是说，那些理所当然的“负担” &hellip;">
+	<meta name="description" content="Nov 4th, 2013 android笔记 Comments Listview 子控件重复加载 这是一个常见的listview 资源文件的写法。 listview资源文件 1
+2
+3
+4
+5 &lt;ListView android:layout_width=&quot; &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -98,6 +102,68 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner">
 <div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-04T20:45:00+08:00" data-updated="true" itemprop="datePublished">Nov 4<span>th</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
+
+
+</div>
+		
+		
+          <span class="comments"><a href="/blog/2013/11/04/listview-re-getview/#comments">Comments</a></span>
+         
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/11/04/listview-re-getview/" itemprop="url">Listview 子控件重复加载</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>这是一个常见的listview 资源文件的写法。</p>
+
+<figure class='code'><figcaption><span>listview资源文件 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>    <span class="nt">&lt;ListView</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>        <span class="na">android:id=</span><span class="s">&quot;@+id/listView&quot;</span>
+</span><span class='line'>    <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注意到<code>android:layout_height</code> 被设置为<code>wrap_content</code>，这似乎很合理。但如果我们留心的话可以发现，与这个listview 关联的adapter对象的<code>getView()</code>方法被<strong>重复调用了好几遍</strong>!这对于那些依赖listview 展示大量数据的应用来说，绝对是性能打击。</p>
+
+<h2>解决方案：</h2>
+
+<p>将这个属性设置为<code>match_parent</code> 或者固定的数值</p>
+
+<h2>原因：</h2>
+
+<p>通过分析<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/AbsListView.java">AbsListView</a> 以及<a href="https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/java/android/widget/ListView.java">Listview</a>的代码，发现答案应该在<code>onMeasure()</code>方法里：由于<code>wrap_content</code> 并没有指定一个固定值，<strong>系统需要通过尝试layout来满足<code>wrap_content</code></strong>。每次尝试都会调用<code>onMeasure()</code>,<code>layoutChildren()</code>,使得<code>getView()</code>被重复调用</p>
+
+		
+		
+	</div>
+
+</article>
 
 
     <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
@@ -331,50 +397,6 @@
 <li><a href="https://developer.android.com/guide/topics/resources/runtime-changes.html">Handling Runtime Changes</a></li>
 </ul>
 
-
-		
-		
-	</div>
-
-</article>
-
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-04-14T19:44:00+08:00" data-updated="true" itemprop="datePublished">Apr 14<span>th</span>, 2013</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/hu-si-luan-xiang/'>胡思乱想</a>
-
-
-</div>
-		
-		
-          <span class="comments"><a href="/blog/2013/04/14/comment-is-cheap/#comments">Comments</a></span>
-         
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2013/04/14/comment-is-cheap/" itemprop="url">廉价的吐槽</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<p>这几年，你有没有发现“赞美”变成了一件奢侈的事情？尤其当你面对一群挑剔的听众，你的赞美往往会被人扭曲：“你拿了人家什么好处，这样帮他说话？”、“推销？你被洗脑了吧！”、“这你都没见过？有什么好大惊小怪的。”…诸如此类。不晓得从什么时候开始，开口赞美，也变得越来越有压力了。</p>
-
-<p>赞美的起点似乎总比被赞美的事物要低，反而吐槽更容易让你居高临下，优越感一览无遗。不管人家说什么，你跟着去赞美，容易被人说成是拍马，而吐槽的言行至少不会显得你太低端（哈哈，说这是批判精神）。这种不用思考的“安全反应”，使得越来越多的人，习惯了吐槽。当跟风赞美变成弱智、“五毛”之后，跟风吐槽就显得有节操，有品位了。任何事情，你都可以表现得不屑一顾，“安全的”凌驾于其之上。只是，这种廉价的破烂习惯，让我们的社会关系变得越来越冷漠了。</p>
-
-<p>其实，生活中并不缺乏温情的画面，讲一个刚刚发生的故事。昨天晚上，我习惯性的去了趟沃尔玛。轮到我结账的时候，为了不让后面排队的人等太久，我手忙脚乱的把货品往买来的2个袋子里塞。收银员打断了我的动作，说：你这些速冻食品压在最底下，回家的时候肯定就烂掉了。我愣了一下，结果，她很自然的接手了剩下来的操作。只用了一个袋子，就将所有货品麻利的装了进去，还照顾到了各种货品的运输属性（易碎性、温度、空间等），合理的安排了他们在装袋时的位置。很快的，我缓过神来，没有说话，但竖起了大拇指。</p>
-
-<p>同样是排队结账，吐槽就显得太过廉价了。你永远可以调侃中国人多，甚至责怪超市收银出口太少，但绝大多数的情况下，你都无法避免排队等候。而这种廉价的吐槽行为，只会让自己愤怒，说不定还会影响他人，人与人之间就在消费吐槽时，变得淡了下来。</p>
 
 		
 		

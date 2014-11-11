@@ -1,0 +1,201 @@
+
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>蛋疼的BUG：binder事务异常 - 邵明博</title>
+	<meta name="author" content="邵明博">
+
+	
+	<meta name="description" content="本文主要记录了寻找binder 事务异常的过程。">
+	<meta name="keywords" content="解BUG, 程序崩溃, binder">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="邵明博" type="application/atom+xml">
+	
+	<link rel="canonical" href="http://mingbo.de/blog/2014/11/11/failed-binder-transaction/">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<!--
+	<link href='http://fonts.googleapis.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	-->
+	<link href='http://fonts.useso.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.useso.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+  
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-37619750-1']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+
+
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="left-col">
+			<div class="intrude-less">
+			<header id="header" class="inner"><div class="profilepic">
+	
+	<img src="http://www.gravatar.com/avatar/c13379983e1f35c8207252603544f878?s=160" alt="Profile Picture" style="width: 160px;" />
+	
+</div>
+
+<nav id="main-nav"><ul class="main">
+    <li><a href="/">Blog</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="sub-nav">
+	<div class="social">
+		
+		
+		
+		
+			<a class="twitter" href="http://twitter.com/soulsaunter" title="Twitter">Twitter</a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+    	
+    	
+			<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+</nav>
+</header>				
+			</div>
+		</div>	
+		<div class="mid-col">
+			
+				
+			
+			<div class="mid-col-container">
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">蛋疼的BUG：binder事务异常</h1>
+	<div class="entry-content" itemprop="articleBody"><p>一句log&#8221;<strong>!!! FAILED BINDER TRANSACTION !!!</strong>&ldquo;，伴随着App的崩溃，留下的是程序员深深的思考。定位到android 的源码，此log 出自<code>android_util_Binder.cpp</code>。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">signalExceptionForError</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">obj</span><span class="p">,</span> <span class="n">status_t</span> <span class="n">err</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">canThrowRemoteException</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>        <span class="k">case</span> <span class="nl">FAILED_TRANSACTION:</span>
+</span><span class='line'>            <span class="n">ALOGE</span><span class="p">(</span><span class="s">&quot;!!! FAILED BINDER TRANSACTION !!!&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="c1">// TransactionTooLargeException is a checked exception, only throw from certain methods.</span>
+</span><span class='line'>            <span class="c1">// FIXME: Transaction too large is the most common reason for FAILED_TRANSACTION</span>
+</span><span class='line'>            <span class="c1">//        but it is not the only one.  The Binder driver can return BR_FAILED_REPLY</span>
+</span><span class='line'>            <span class="c1">//        for other reasons also, such as if the transaction is malformed or</span>
+</span><span class='line'>            <span class="c1">//        refers to an FD that has been closed.  We should change the driver</span>
+</span><span class='line'>            <span class="c1">//        to enable us to distinguish these cases in the future.</span>
+</span><span class='line'>            <span class="n">jniThrowException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">canThrowRemoteException</span><span class="o">?</span> <span class="s">&quot;android/os/TransactionTooLargeException&quot;</span><span class="o">:</span> <span class="s">&quot;java/lang/RuntimeException&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>很明显，按照注释的描述，我们遇到的问题就转换为了<code>TransactionTooLargeException</code>引起的程序崩溃了。去<a href="http://developer.android.com/reference/android/os/TransactionTooLargeException.html">官网</a>一查，它给出的说明更清晰：远程调用的时候，参数和返回值都以Parcel 的形式保存在<strong>Binder 事务的缓存对象</strong>中。如果参数或返回值过大，则会抛出<code>TransactionTooLargeException</code>异常。</p>
+
+<p>按照这个提示，我跟到驱动层的<code>binder.c</code>的<a href="https://android.googlesource.com/kernel/common.git/+/android-2.6.39/drivers/staging/android/binder.c">代码</a>看了一下<code>binder_transaction</code>以及<code>binder_alloc_buf</code>方法，证实了前面注释代码所言非虚。另外，官方文档提到了一个1M 大小的buffer空间的限制，我翻了几个版本的代码来看，发现其实这个数值并没有写死。buffer 应该是不大于2M而不是它说的1M，但正如文档所说，由于binder 被所有跨进程通讯所共享，即使你的parcel 不大，但是使用binder 的人很多，也有可能造成上述异常。所以，这里解决问题的方法，应该是尽可能的传递小一点的parcel或者使用其他数据通讯方案。是的，说的就是你，不要用binder 传那么多那么大的高清图片了！</p>
+</div>
+
+</article>
+
+
+  <section>
+    <h1>Comments</h1>
+    <div id="comments" aria-live="polite"><!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"shaomingbo"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END --></div>
+  </section>
+</div>
+			</div>
+			<footer id="footer" class="inner">Copyright &copy; 2014
+
+    邵明博
+
+
+</footer>
+		</div>
+	</div>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-37619750-1']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+
+
+
+</body>
+</html>
