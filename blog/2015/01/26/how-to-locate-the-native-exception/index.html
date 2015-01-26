@@ -1,0 +1,146 @@
+
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>定位Native异常 - 邵明博</title>
+	<meta name="author" content="邵明博">
+
+	
+	<meta name="description" content="本文主要介绍了2套定位native异常的工具。">
+	<meta name="keywords" content="android,开发技巧,ndk,native">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="邵明博" type="application/atom+xml">
+	
+	<link rel="canonical" href="http://mingbo.de/blog/2015/01/26/how-to-locate-the-native-exception/">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<!--
+	<link href='http://fonts.googleapis.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	-->
+	<link href='http://fonts.useso.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.useso.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+  
+
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="left-col">
+			<div class="intrude-less">
+			<header id="header" class="inner"><div class="profilepic">
+	
+	<img src="http://mingbo.de/images/head/header.png" alt="Profile Picture" style="width: 160px;" />
+	
+</div>
+
+<nav id="main-nav"><ul class="main">
+    <li><a href="/">Blog</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="sub-nav">
+	<div class="social">
+		
+		
+		
+		
+			<a class="twitter" href="http://twitter.com/soulsaunter" title="Twitter">Twitter</a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+    	
+    	
+			<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+</nav>
+</header>				
+			</div>
+		</div>	
+		<div class="mid-col">
+			
+				
+			
+			<div class="mid-col-container">
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">定位Native异常</h1>
+	<div class="entry-content" itemprop="articleBody"><h2>0x00 ndk-stack</h2>
+
+<p>Google从<code>NDK r6</code>开始提供这个方便的工具，帮助开发者定位Native 异常。和<code>ndk-build</code>一样，这个命令行工具被放在<code>NDK</code>安装目录下。作为Debug 工具，其操作方法也十分简单：只需在参数里指定包含符号表的<code>so</code>文件即可。</p>
+
+<p>如果需要实时获取异常信息，我们可以直接运行：<code>adb shell logcat | ndk-stack -sym $PROJECT_DIR/obj/local/armeabi</code>；有的时候日志文件并不一定能直接看到，该工具也支持“异步”分析。这里我们首先运行：<code>adb shell logcat &gt; android.log</code>来模拟“异步”获取日志。 在获得日志文件之后，我们拿它喂给命令行工具：<code>ndk-stack -sym $PROJECT_DIR/obj/local/armeabi -dump android.log</code>。</p>
+
+<p>就这样，天书一般的日志文件瞬间变得友好可读了。</p>
+
+<h2>0x01 addr2line以及objdump</h2>
+
+<p>对于有经验的程序员来说，可能更熟悉这2款工具。方法类似，结果相同，所以这里就不再赘述了。</p>
+</div>
+
+</article>
+
+
+  <section>
+    <h1>Comments</h1>
+    <div id="comments" aria-live="polite"><!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"shaomingbo"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END --></div>
+  </section>
+</div>
+			</div>
+			<footer id="footer" class="inner">Copyright &copy; 2015
+
+    邵明博
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1253874545'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/stat.php%3Fid%3D1253874545' type='text/javascript'%3E%3C/script%3E"));</script>
+
+</footer>
+		</div>
+	</div>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <title><![CDATA[邵明博]]></title>
   <link href="http://mingbo.de/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2014-12-20T12:51:38+08:00</updated>
+  <updated>2015-01-26T21:28:04+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -12,6 +12,25 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[定位Native异常]]></title>
+    <link href="http://mingbo.de/blog/2015/01/26/how-to-locate-the-native-exception/"/>
+    <updated>2015-01-26T21:08:00+08:00</updated>
+    <id>http://mingbo.de/blog/2015/01/26/how-to-locate-the-native-exception</id>
+    <content type="html"><![CDATA[<h2>0x00 ndk-stack</h2>
+
+<p>Google从<code>NDK r6</code>开始提供这个方便的工具，帮助开发者定位Native 异常。和<code>ndk-build</code>一样，这个命令行工具被放在<code>NDK</code>安装目录下。作为Debug 工具，其操作方法也十分简单：只需在参数里指定包含符号表的<code>so</code>文件即可。</p>
+
+<p>如果需要实时获取异常信息，我们可以直接运行：<code>adb shell logcat | ndk-stack -sym $PROJECT_DIR/obj/local/armeabi</code>；有的时候日志文件并不一定能直接看到，该工具也支持“异步”分析。这里我们首先运行：<code>adb shell logcat &gt; android.log</code>来模拟“异步”获取日志。 在获得日志文件之后，我们拿它喂给命令行工具：<code>ndk-stack -sym $PROJECT_DIR/obj/local/armeabi -dump android.log</code>。</p>
+
+<p>就这样，天书一般的日志文件瞬间变得友好可读了。</p>
+
+<h2>0x01 addr2line以及objdump</h2>
+
+<p>对于有经验的程序员来说，可能更熟悉这2款工具。方法类似，结果相同，所以这里就不再赘述了。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[蛋疼的BUG：binder事务异常]]></title>

@@ -9,11 +9,7 @@
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content="Nov 4th, 2013 android笔记 Comments Listview 子控件重复加载 这是一个常见的listview 资源文件的写法。 listview资源文件 1
-2
-3
-4
-5 &lt;ListView android:layout_width=&quot; &hellip;">
+	<meta name="description" content="Nov 8th, 2013 android笔记 Comments 视图的绘制 在《Listview 子控件重复加载》中谈到了onMeasure()方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充： 绘制过程是一个控件树遍历的过程，从根控件开始 &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +86,78 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner">
 <div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-08T14:48:00+08:00" data-updated="true" itemprop="datePublished">Nov 8<span>th</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
+
+
+</div>
+		
+		
+          <span class="comments"><a href="/blog/2013/11/08/how-android-draws-views/#comments">Comments</a></span>
+         
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/11/08/how-android-draws-views/" itemprop="url">视图的绘制</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>在<a href="http://mingbo.de/blog/2013/11/04/listview-re-getview/">《Listview 子控件重复加载》</a>中谈到了<code>onMeasure()</code>方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充：</p>
+
+<ul>
+<li>绘制过程是一个控件树遍历的过程，从根控件开始</li>
+<li><code>ViewGroup</code>负责通知它的子视图，<code>View</code>负责自绘，按照顺序，父视图先于子视图绘制</li>
+<li>绘制实际上是2个自顶向下的过程：measure 和layout。</li>
+<li>经过measure 之后，每个<code>View</code>都会保存自己的尺寸，而在layout 过程中父视图会使用这些尺寸来摆放子视图</li>
+<li><code>View</code>对象的高宽会受到父视图的限制，以保证整个视图的正常显示</li>
+<li>父视图会<strong>多次调用子视图的measure方法</strong>。比如：父视图会先计算不受约束的情况下，子视图的大小；如果子视图过大或者过小，父视图都会指定一个具体的值</li>
+<li>Measure 过程还会涉及<code>ViewGroup.LayoutParams</code>以及<code>MeasureSpec</code>的设置</li>
+<li><code>ViewGroup.LayoutParams</code>被View 对象用来告诉其父控件，自己想如何被计算以及摆放，最基本的是指定长宽：
+
+<ol>
+<li>MATCH_PARENT, which means the View wants to be as big as its parent (minus padding)</li>
+<li>WRAP_CONTENT, which means that the View wants to be just big enough to enclose its content (plus padding).</li>
+<li>具体数值</li>
+</ol>
+</li>
+<li>MeasureSpec 指定一种计算模式：
+
+<ol>
+<li>UNSPECIFIED: This is used by a parent to determine the desired dimension of a child View.</li>
+<li>EXACTLY: This is used by the parent to impose an exact size on the child.</li>
+<li>AT MOST: This is used by the parent to impose a maximum size on the child.</li>
+</ol>
+</li>
+</ul>
+
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="https://developer.android.com/guide/topics/ui/how-android-draws.html">How Android Draws Views</a></li>
+</ul>
+
+
+		
+		
+	</div>
+
+</article>
 
 
     <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
@@ -285,113 +353,6 @@
 
 </article>
 
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-03T11:33:00+08:00" data-updated="true" itemprop="datePublished">Nov 3<span>rd</span>, 2013</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
-
-
-</div>
-		
-		
-          <span class="comments"><a href="/blog/2013/11/03/activity-note/#comments">Comments</a></span>
-         
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2013/11/03/activity-note/" itemprop="url">Activity 心经</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<p>Android 四大组件中，Activty 最为常见。这里对Activity 的相关知识进行梳理，以供日后查阅。</p>
-
-<h2>生命周期</h2>
-
-<p><img src="/images/20131103/basic-lifecycle.png" alt="生命周期" /></p>
-
-<ul>
-<li>六种状态构成了生命周期金字塔</li>
-<li>位于顶端的Resumed 状态有着与用户交互的特权</li>
-<li>金字塔的第二层对于用户来说可视或部分可视</li>
-<li>金字塔的第三层虽然存在于系统内存，但对于用户来说不可视</li>
-<li>从箭头的指向来看，<strong>Resumed 与Paused 之间的转换最为活跃</strong>，为了保证UI流畅，这里应尽可能的放一些轻巧的代码</li>
-<li>从Activity 对象的角度来讲，只有<strong>三种状态持续存在</strong>：Resumed，Paused，Stopped</li>
-<li>Activity 的Paused 状态对于自身而言是被前台的Activity(或窗口）遮挡了一部分，对于用户来讲这个Activity 只有部分可见。<strong>在这种状态下，Activity 对象依然停留在内存里，也同时被windows manager 引用着</strong>；Activity 的Stopped状态与Paused 状态类似，<strong>除了</strong>更彻底的不可见<strong>之外</strong>，此时此刻这个Activity已经不被windows manager 引用了</li>
-<li>当Activity 的Paused 或Stopped状态遭遇系统内存吃紧：系统要么温柔的调用<code>finish()</code> 逐个清理Activity，要么粗暴的结束掉该对象所在的进程</li>
-</ul>
-
-
-<h2>资源管理</h2>
-
-<ul>
-<li>鉴于<strong>内存吃紧</strong>的不可预见，我们应该在<code>onStop()</code>中释放掉那些容易造成内存泄漏的资源</li>
-<li>关于<code>onPause()</code>方法更具体的建议
-
-<pre><code>1.  停止动画等消耗CPU 的操作
-2.  注销广播监听器、传感器监听器等影响电池寿命的资源
-3.  仅当用户需要的情况下，提交未保存的状态。为了保证界面的平滑切换，应避免在这里调用CPU-Intensive 的操作（如，写数据库），而应将其移至之后的stop方法中
-</code></pre></li>
-<li> <code>onSaveInstanceState()</code>默认的会保存Activity 的视图结构，如Checkbox 是否被选中，Edittext 中的编辑文字，但前提是为每个控件都配备有一个独特的ID</li>
-<li> 当且仅当有数据需要恢复的时候，<code>onRestoreInstanceState()</code>才被系统调用，且一般在<code>onStart()</code>之后</li>
-<li> 可以使用<code>finish()</code>以及<code>finishActivity(int requestCode)</code>来关闭Activity，但除非你确定必须这么做，<strong>不然最好将这项工作交由系统来完成</strong></li>
-<li> 一般情况下，如果一个应用退到后台超过30分钟，系统会清理掉该堆栈中的acitivties。但如果<code>android:alwaysRetainTaskState</code>属性被设置为true，用户重返应用的时候总会获得上次Activity的状态。这一点对于浏览器应用相当有用</li>
-<li> 如果属性<code>android:noHistory</code>被设置为true，那么当用户从这个activity 离开的时候，就会自动调用<code>finish()</code>。因此，无法从任务堆栈中找回该activity 的历史轨迹了</li>
-<li> 一般来讲，<code>onDestroy()</code> 的执行应该在<code>onPause()</code>或者<code>onStop()</code>之后。但如果，你在<code>onCreate()</code>中直接调用<code>finish()</code>，则系统会直接跳过他们调用<code>onDestroy()</code>的</li>
-</ul>
-
-
-<h2>运行模式</h2>
-
-<ul>
-<li>Task 是由一组为了完成某项工作的Activities 组成，它们<strong>不受</strong>进程或应用的约束，体现的是Activity 之间<strong>相互调用和执行</strong>的关系</li>
-<li>Activity 的运行模式有四种:standard，singleTop，singleTask，singleInstance。除了Standard 之外的三种模式对于activity均有不同程度的复用</li>
-<li>standard 与singleTop 类似，在程序运行的过程中，这两种模式的activity 会有多个实例出现在一个或多个Task 中的任意位置。但二者之间有着细微的差别：singleTop 模式下的activty 如果在目标task 的顶部，对于新收到的intent会使用<code>onNewIntent()</code>回调来响应；其他情况下和standard 模式一样，对于每一个新收到的intent 都对应一个新的实例。</li>
-<li>singleTask 与singleInstance 类似，都只能出现在一个task stack 内，且始终呆在stack 的根部，对于整个设备来说它们只有一个实例。除此之外，它们都使用<code>onNewIntent()</code> 来响应创建后收到的intent。但两者之间有着细微的差别：singleTask 允许引入新的activity 来组建task，而singleInstance 永远自成一派。很显然，singleInstance适合内存消耗较多的界面，如播放器、浏览器等。</li>
-</ul>
-
-
-<h2>其他</h2>
-
-<ul>
-<li>如果项目中没有一个Activity 被设置为<code>MAIN action</code> 或者<code>LAUNCHER category</code>，那么桌面就不会显示相应的图标</li>
-<li>程序运行过程中，如遇到配置变动，则会引起activity 重启，这是系统自动适配的行为。</li>
-<li>重启后，其数据需要得到重新填充。如果数据量较小，则可以依赖<code>onSaveInstanceState()</code>以及<code>onRestoreInstanceState()</code>这两个回调接口；反之，则需要特殊对待：要么规避系统的重启行为，自己来做适配工作；要么在配置变更的时候通过接口<code>onRetainNonConfigurationInstance()</code>来保存数据对象，待到重启之后使用<code>getLastNonConfigurationInstance()</code>来恢复相关数据</li>
-</ul>
-
-
-<hr />
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="https://developer.android.com/training/basics/activity-lifecycle/starting.html">Starting an Activity</a></li>
-<li><a href="https://developer.android.com/training/basics/activity-lifecycle/pausing.html">Pausing and Resuming an Activity</a></li>
-<li><a href="https://developer.android.com/training/basics/activity-lifecycle/stopping.html">Stopping and Restarting an Activity</a></li>
-<li><a href="https://developer.android.com/training/basics/activity-lifecycle/recreating.html">Recreating an Activity</a></li>
-<li><a href="https://developer.android.com/guide/components/activities.html">Activities</a></li>
-<li><a href="https://developer.android.com/guide/topics/manifest/activity-element.html">android:launchMode</a></li>
-<li><a href="https://developer.android.com/guide/topics/resources/runtime-changes.html">Handling Runtime Changes</a></li>
-</ul>
-
-
-		
-		
-	</div>
-
-</article>
-
 </div>
 <nav id="pagenavi">
     
@@ -403,7 +364,7 @@
     <div class="center"><a href="/blog/archives">Blog Archives</a></div>
 </nav></div>
 			</div>
-			<footer id="footer" class="inner">Copyright &copy; 2014
+			<footer id="footer" class="inner">Copyright &copy; 2015
 
     邵明博
 <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1253874545'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/stat.php%3Fid%3D1253874545' type='text/javascript'%3E%3C/script%3E"));</script>
