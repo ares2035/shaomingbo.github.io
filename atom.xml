@@ -4,7 +4,7 @@
   <title><![CDATA[邵明博]]></title>
   <link href="http://mingbo.de/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2015-01-26T21:28:04+08:00</updated>
+  <updated>2015-01-28T21:48:15+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -12,6 +12,86 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[class文件从硬盘到内存的心路历程]]></title>
+    <link href="http://mingbo.de/blog/2015/01/28/java-class-load-road-map/"/>
+    <updated>2015-01-28T21:25:00+08:00</updated>
+    <id>http://mingbo.de/blog/2015/01/28/java-class-load-road-map</id>
+    <content type="html"><![CDATA[<h2>0x00 加载</h2>
+
+<ul>
+<li><strong>类的加载</strong>本质上是由类加载器将字节码转换为<code>java.lang.Class</code>对象的过程</li>
+<li>除了引导类加载器之外，所有的类加载器都有一个父类加载器</li>
+<li>每一层的类加载器在收到加载请求之后，会将请求委派给父加载器执行；只有父加载器无法完成加载请求的时候，子加载器才尝试自己加载</li>
+<li>这种双亲委托模型一方面避免了类的重复加载，另一方面还能防止Java 核心API<strong>被子加载器替换</strong>带来的隐患
+
+<h2>0x01 链接</h2></li>
+<li>链接分为三步：验证、准备和解析。其本质上是将字节码合入JVM运行时的过程。</li>
+<li><strong>验证阶段</strong>主要是确认字节码结构的合法性，一旦验证失败，JVM会抛出<code>java.lang.VerifyError</code>异常</li>
+<li><strong>准备阶段</strong>主要是将Java类的静态域初始化为默认值（并不执行任何代码）</li>
+<li><p><strong>解析阶段</strong>主要是确保所有引用的类能被正确的找到，这通常会导致引用类被加载</p>
+
+<h2>0x02 初始化</h2>
+
+<p>该阶段的任务主要是初始化静态域，以及执行静态块代码。一个类被初始化之前，其父类会被先初始化。关于这一点，有2个需要注意的地方：</p></li>
+<li><p>通过Java反射API也可能造成类的初始化</p></li>
+<li>当访问一个类的静态域时，只有真正声明这个域的类才会被初始化。则，考虑如下代码：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">Base</span> <span class="o">{</span>
+</span><span class='line'>   <span class="kd">static</span> <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+</span><span class='line'>   <span class="kd">static</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;我会被输出.&quot;</span><span class="o">);</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">A</span> <span class="kd">extends</span> <span class="n">Base</span> <span class="o">{</span>
+</span><span class='line'>   <span class="kd">static</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;我不会被输出&quot;</span><span class="o">);</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">A</span><span class="o">.</span><span class="na">value</span><span class="o">);</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如上所述，上述代码的运行结果为：</p>
+
+<p><img class="center" src="http://mingbo.de/images/201501/code_result.png"></p>
+
+<h2>0x03 参考资料</h2>
+
+<ul>
+<li><a href="http://www.ibm.com/developerworks/cn/java/j-lo-classloader/index.html">深入探讨Java 类加载器</a></li>
+<li><a href="http://computerdragon.blog.51cto.com/6235984/1223354">Java虚拟机类加载机制浅谈</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[定位Native异常]]></title>

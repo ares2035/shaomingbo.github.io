@@ -1,0 +1,207 @@
+
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>class文件从硬盘到内存的心路历程 - 邵明博</title>
+	<meta name="author" content="邵明博">
+
+	
+	<meta name="description" content="本文主要描述了java类的加载、链接以及初始化的要点">
+	<meta name="keywords" content="加载, 链接, 初始化">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="邵明博" type="application/atom+xml">
+	
+	<link rel="canonical" href="http://mingbo.de/blog/2015/01/28/java-class-load-road-map/">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<!--
+	<link href='http://fonts.googleapis.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	-->
+	<link href='http://fonts.useso.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.useso.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
+  
+
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="left-col">
+			<div class="intrude-less">
+			<header id="header" class="inner"><div class="profilepic">
+	
+	<img src="http://mingbo.de/images/head/header.png" alt="Profile Picture" style="width: 160px;" />
+	
+</div>
+
+<nav id="main-nav"><ul class="main">
+    <li><a href="/">Blog</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/blog/archives">Archives</a></li>
+</ul>
+</nav>
+<nav id="sub-nav">
+	<div class="social">
+		
+		
+		
+		
+			<a class="twitter" href="http://twitter.com/soulsaunter" title="Twitter">Twitter</a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+    	
+    	
+			<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+</nav>
+</header>				
+			</div>
+		</div>	
+		<div class="mid-col">
+			
+				
+			
+			<div class="mid-col-container">
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">Class文件从硬盘到内存的心路历程</h1>
+	<div class="entry-content" itemprop="articleBody"><h2>0x00 加载</h2>
+
+<ul>
+<li><strong>类的加载</strong>本质上是由类加载器将字节码转换为<code>java.lang.Class</code>对象的过程</li>
+<li>除了引导类加载器之外，所有的类加载器都有一个父类加载器</li>
+<li>每一层的类加载器在收到加载请求之后，会将请求委派给父加载器执行；只有父加载器无法完成加载请求的时候，子加载器才尝试自己加载</li>
+<li>这种双亲委托模型一方面避免了类的重复加载，另一方面还能防止Java 核心API<strong>被子加载器替换</strong>带来的隐患
+
+<h2>0x01 链接</h2></li>
+<li>链接分为三步：验证、准备和解析。其本质上是将字节码合入JVM运行时的过程。</li>
+<li><strong>验证阶段</strong>主要是确认字节码结构的合法性，一旦验证失败，JVM会抛出<code>java.lang.VerifyError</code>异常</li>
+<li><strong>准备阶段</strong>主要是将Java类的静态域初始化为默认值（并不执行任何代码）</li>
+<li><p><strong>解析阶段</strong>主要是确保所有引用的类能被正确的找到，这通常会导致引用类被加载</p>
+
+<h2>0x02 初始化</h2>
+
+<p>该阶段的任务主要是初始化静态域，以及执行静态块代码。一个类被初始化之前，其父类会被先初始化。关于这一点，有2个需要注意的地方：</p></li>
+<li><p>通过Java反射API也可能造成类的初始化</p></li>
+<li>当访问一个类的静态域时，只有真正声明这个域的类才会被初始化。则，考虑如下代码：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">Base</span> <span class="o">{</span>
+</span><span class='line'>   <span class="kd">static</span> <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+</span><span class='line'>   <span class="kd">static</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;我会被输出.&quot;</span><span class="o">);</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">A</span> <span class="kd">extends</span> <span class="n">Base</span> <span class="o">{</span>
+</span><span class='line'>   <span class="kd">static</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;我不会被输出&quot;</span><span class="o">);</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">A</span><span class="o">.</span><span class="na">value</span><span class="o">);</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如上所述，上述代码的运行结果为：</p>
+
+<p><img class="center" src="/images/201501/code_result.png"></p>
+
+<h2>0x03 参考资料</h2>
+
+<ul>
+<li><a href="http://www.ibm.com/developerworks/cn/java/j-lo-classloader/index.html">深入探讨Java 类加载器</a></li>
+<li><a href="http://computerdragon.blog.51cto.com/6235984/1223354">Java虚拟机类加载机制浅谈</a></li>
+</ul>
+
+</div>
+
+</article>
+
+
+  <section>
+    <h1>Comments</h1>
+    <div id="comments" aria-live="polite"><!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"shaomingbo"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END --></div>
+  </section>
+</div>
+			</div>
+			<footer id="footer" class="inner">Copyright &copy; 2015
+
+    邵明博
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1253874545'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/stat.php%3Fid%3D1253874545' type='text/javascript'%3E%3C/script%3E"));</script>
+
+</footer>
+		</div>
+	</div>
+	<script src="/javascripts/slash.js"></script>
+<script src="/javascripts/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+	$('.fancybox').fancybox();
+})(jQuery);
+</script> <!-- Delete or comment this line to disable Fancybox -->
+
+
+
+
+
+
+</body>
+</html>

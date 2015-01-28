@@ -9,7 +9,9 @@
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content="Jan 26th, 2015 android笔记 Comments 定位Native异常 0x00 ndk-stack Google从NDK r6开始提供这个方便的工具，帮助开发者定位Native 异常。和ndk-build一样，这个命令行工具被放在NDK安装目录下。作为Debug 工具， &hellip;">
+	<meta name="description" content="Jan 28th, 2015 java笔记 Comments Class文件从硬盘到内存的心路历程 0x00 加载 类的加载本质上是由类加载器将字节码转换为java.lang.Class对象的过程
+除了引导类加载器之外，所有的类加载器都有一个父类加载器
+每一层的类加载器在收到加载请求之后， &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -85,6 +87,115 @@
 			
 			<div class="mid-col-container">
 				<div id="content" class="inner">
+
+
+    <article class="post">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-28T21:25:00+08:00" data-updated="true" itemprop="datePublished">Jan 28<span>th</span>, 2015</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/javabi-ji/'>java笔记</a>
+
+
+</div>
+		
+		
+          <span class="comments"><a href="/blog/2015/01/28/java-class-load-road-map/#comments">Comments</a></span>
+         
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2015/01/28/java-class-load-road-map/" itemprop="url">Class文件从硬盘到内存的心路历程</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<h2>0x00 加载</h2>
+
+<ul>
+<li><strong>类的加载</strong>本质上是由类加载器将字节码转换为<code>java.lang.Class</code>对象的过程</li>
+<li>除了引导类加载器之外，所有的类加载器都有一个父类加载器</li>
+<li>每一层的类加载器在收到加载请求之后，会将请求委派给父加载器执行；只有父加载器无法完成加载请求的时候，子加载器才尝试自己加载</li>
+<li>这种双亲委托模型一方面避免了类的重复加载，另一方面还能防止Java 核心API<strong>被子加载器替换</strong>带来的隐患
+
+<h2>0x01 链接</h2></li>
+<li>链接分为三步：验证、准备和解析。其本质上是将字节码合入JVM运行时的过程。</li>
+<li><strong>验证阶段</strong>主要是确认字节码结构的合法性，一旦验证失败，JVM会抛出<code>java.lang.VerifyError</code>异常</li>
+<li><strong>准备阶段</strong>主要是将Java类的静态域初始化为默认值（并不执行任何代码）</li>
+<li><p><strong>解析阶段</strong>主要是确保所有引用的类能被正确的找到，这通常会导致引用类被加载</p>
+
+<h2>0x02 初始化</h2>
+
+<p>该阶段的任务主要是初始化静态域，以及执行静态块代码。一个类被初始化之前，其父类会被先初始化。关于这一点，有2个需要注意的地方：</p></li>
+<li><p>通过Java反射API也可能造成类的初始化</p></li>
+<li>当访问一个类的静态域时，只有真正声明这个域的类才会被初始化。则，考虑如下代码：</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">class</span> <span class="nc">Base</span> <span class="o">{</span>
+</span><span class='line'>   <span class="kd">static</span> <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+</span><span class='line'>   <span class="kd">static</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;我会被输出.&quot;</span><span class="o">);</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">class</span> <span class="nc">A</span> <span class="kd">extends</span> <span class="n">Base</span> <span class="o">{</span>
+</span><span class='line'>   <span class="kd">static</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;我不会被输出&quot;</span><span class="o">);</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>
+</span><span class='line'>   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">A</span><span class="o">.</span><span class="na">value</span><span class="o">);</span>
+</span><span class='line'>   <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如上所述，上述代码的运行结果为：</p>
+
+<p><img class="center" src="/images/201501/code_result.png"></p>
+
+<h2>0x03 参考资料</h2>
+
+<ul>
+<li><a href="http://www.ibm.com/developerworks/cn/java/j-lo-classloader/index.html">深入探讨Java 类加载器</a></li>
+<li><a href="http://computerdragon.blog.51cto.com/6235984/1223354">Java虚拟机类加载机制浅谈</a></li>
+</ul>
+
+
+		
+		
+	</div>
+
+</article>
 
 
     <article class="post">
@@ -206,169 +317,6 @@
 <p>很明显，按照注释的描述，我们遇到的问题就转换为了<code>TransactionTooLargeException</code>引起的程序崩溃了。去<a href="http://developer.android.com/reference/android/os/TransactionTooLargeException.html">官网</a>一查，它给出的说明更清晰：远程调用的时候，参数和返回值都以Parcel 的形式保存在<strong>Binder 事务的缓存对象</strong>中。如果参数或返回值过大，则会抛出<code>TransactionTooLargeException</code>异常。</p>
 
 <p>按照这个提示，我跟到驱动层的<code>binder.c</code>的<a href="https://android.googlesource.com/kernel/common.git/+/android-2.6.39/drivers/staging/android/binder.c">代码</a>看了一下<code>binder_transaction</code>以及<code>binder_alloc_buf</code>方法，证实了前面注释代码所言非虚。另外，官方文档提到了一个1M 大小的buffer空间的限制，我翻了几个版本的代码来看，发现其实这个数值并没有写死。buffer 应该是不大于2M而不是它说的1M，但正如文档所说，由于binder 被所有跨进程通讯所共享，即使你的parcel 不大，但是使用binder 的人很多，也有可能造成上述异常。所以，这里解决问题的方法，应该是尽可能的传递小一点的parcel或者使用其他数据通讯方案。是的，说的就是你，不要用binder 传那么多那么大的高清图片了！</p>
-
-		
-		
-	</div>
-
-</article>
-
-
-    <article class="post">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-24T14:42:00+08:00" data-updated="true" itemprop="datePublished">Oct 24<span>th</span>, 2014</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
-
-
-</div>
-		
-		
-          <span class="comments"><a href="/blog/2014/10/24/avoiding-android-memory-leaks/#comments">Comments</a></span>
-         
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2014/10/24/avoiding-android-memory-leaks/" itemprop="url">Android内存泄露及分析工具</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<p>话说，任何开发环境，想要取得上乘的性能，内存优化是一个不可避免的话题。虽然android 开发过程中，有<code>GC</code>陪伴，但这并不意味着你可以完全忽略内存的分配与释放。这是因为，不恰当的代码仍然会导致内存泄露，以至于<code>GC</code>也无力回天。</p>
-
-<h3>内存限制</h3>
-
-<p>为了维持多任务的运行环境，android 给每个运行的应用规定了一个内存上限（因不同设备的物理内存大小而变化，常见的有16M~48M不等）。每当你的应用企图在触碰上限的情况下分配内存，就会引发<code>OutOfMemoryError</code>。</p>
-
-<h3>内存泄露</h3>
-
-<p>虚拟机中的内存泄露基本上就一条：代码残留了对象，让<code>GC</code>无法回收。也许这个情况一时半会不会翻起大浪，但也可能在下一秒，就触碰<strong>内存限制</strong>，导致程序崩溃。所以，内存泄露的BUG通常都非常隐蔽、随机、让人头大。</p>
-
-<p>常见的泄露有以下几种：</p>
-
-<ul>
-<li><code>Cursor</code>没有关闭</li>
-<li><code>registerReceiver</code>之后没有成对的<code>unregisterReceiver</code></li>
-<li>I/O Stream没有关闭</li>
-<li><code>Context</code>泄露</li>
-</ul>
-
-
-<p>前面3种情况，没啥好说的，在代码层面稍加注意即可避免。最后一种情况可能有些变种需要注意，这里使用2个例子尝试着描述一下。首先借用Romain Guy的例子：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">static</span> <span class="n">Drawable</span> <span class="n">sBackground</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">state</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">TextView</span> <span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TextView</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">label</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;Leaks are bad&quot;</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">sBackground</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">sBackground</span> <span class="o">=</span> <span class="n">getDrawable</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">large_bitmap</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  <span class="n">label</span><span class="o">.</span><span class="na">setBackgroundDrawable</span><span class="o">(</span><span class="n">sBackground</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">setContentView</span><span class="o">(</span><span class="n">label</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>万恶的静态变量出现了，引用关系<code>Drawable</code>&ndash;> <code>TextView</code>&ndash;> <code>Activity</code>导致整个Activity 无法被回收。此外，经常被讨论的Webview 泄露，情况也是类似的。解决方法可以参考这个<a href="http://stackoverflow.com/questions/3130654/memory-leak-in-webview">帖子</a>。这里要谈的另外一种<code>Context</code>泄露是由于非静态内部类引用导致的:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DemoActivity</span> <span class="kd">extends</span> <span class="n">Activity</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">class</span> <span class="nc">LeakRUN</span> <span class="kd">implements</span> <span class="n">Runnable</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="nd">@Override</span>
-</span><span class='line'>        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">TimeUnit</span><span class="o">.</span><span class="na">DAYS</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">365</span><span class="o">);</span>
-</span><span class='line'>            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>正确的处理这种泄露应当仿造<code>ViewRoot</code>中的内部类<code>W</code>那样使用<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.1_r2/android/view/ViewRoot.java#ViewRoot.W">弱引用</a>。这么做的好处是，一来不会出现空指针，二来不会导致内存泄露。</p>
-
-<h2>内存工具</h2>
-
-<p>尽管上面罗列了种种常见的泄露情况，但实际开发中遇到的现象总是千奇百怪的，解决泄露的方法也会因情况而异。所以，这里更重要的是需要了解如何使用工具来发现应用内存是如何泄露的。</p>
-
-<h3>Logcat</h3>
-
-<p>越简单的方法，往往越直接有效。Logcat 提供实时的虚拟机日志，每当垃圾回收发生的时候，我们会看到这样的日志<code>D/dalvikvm: &lt;GC_Reason&gt; &lt;Amount_freed&gt;, &lt;Heap_stats&gt;, &lt;External_memory_stats&gt;, &lt;Pause_time&gt;</code>。其中，垃圾回收的原因、回收内存的大小这些并不是现在关注的重点，我们的兴趣点应该放在<strong>堆的状态</strong>上。这个状态通常会提供两个数值，“空闲内存的比例”以及“内存占用的比例”。如果后者在每次垃圾回收之后，持续上升，<strong>那么几乎就可以断定出现内存泄露了</strong>。</p>
-
-<h3>Monitor</h3>
-
-<p><strong>Monitor</strong>是一个工具大集合，开发者可以从<code>Android studio/ Eclipse</code>直接找到它的入口，调试人员也可以直接从目录<code>&lt;sdk&gt;/tools/</code>下找到它。比起Logcat 被动的查看log, <code>Heap Update</code>提供了可视化的内存数据界面以及垃圾回收的操作接口。连续的在观察数据、回收内存以及应用交互的过程中往返，可以帮助我们定位<strong>“哪些操作”引起了内存激增</strong>。<code>Allocation Tracker</code>则提供了更为精确的<strong>代码级定位</strong>。</p>
-
-<p><img class="center" src="/images/201410/monitor-vmheap.png"></p>
-
-<h3>adb</h3>
-
-<p>adb 命令行工具提供的内存查询接口则更为灵活，信息也更加丰富。一行命令<code>adb shell dumpsys meminfo &lt;package_name&gt;</code>即可完成操作。有精力的开发者完全可以依此定制一款自己的工具来帮助内存泄露的定位。一般来说，我们可以关注<code>Pss Total</code>以及<code>Private Dirty</code>这两项数据来掌握内存信息，而<code>Objects</code>栏目的数据可以帮助引导我们更直观的发现泄漏的情况。</p>
-
-<p><img class="center" src="/images/201410/dumpsys_meminfo.png"></p>
-
-<h3>Heap Dump</h3>
-
-<p>最有效的工具，肯定需要最后出场。在Monitor 中选择<code>Dump HPROF file</code>，可以导出整个设备的虚拟机内存信息。由于该文件并不是传统的java 虚拟机内存文件，因此需要使用android sdk 中的<code>hprof-conv</code>工具对其进行转换。对于转换后的文件，可以使用<a href="http://www.eclipse.org/mat/downloads.php">Eclipse Memory Analyzer Tool (MAT)</a>进行分析。该工具提供两种不同的视图（<code>Histogram</code>和<code>Dominator tree</code>）分别从不同的视角帮助你分析内存。值得一提的是，如果需要更为精确的导出时机的话，还可以在项目的代码中进行控制。</p>
-
-<p>以上工具的具体使用方法，可以参考以下链接的文献，这里就不再赘述了。</p>
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="http://www.littleeye.co/blog/2013/06/11/android-memory-management-understanding-app-pss/">Android Memory Management: Understanding App PSS</a></li>
-<li><a href="http://www.youtube.com/watch?v=_CruQY55HOk">Memory management for Android Apps</a></li>
-<li><a href="http://android-developers.blogspot.com/2009/01/avoiding-memory-leaks.html">Avoiding memory leaks</a></li>
-<li><a href="http://developer.android.com/training/articles/memory.html">Managing your app&rsquo;s memory</a></li>
-<li><a href="https://developer.android.com/tools/debugging/debugging-memory.html">Investigating Your RAM Usage</a></li>
-</ul>
-
 
 		
 		
