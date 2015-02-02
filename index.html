@@ -9,9 +9,7 @@
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content="Jan 28th, 2015 java笔记 Comments Class文件从硬盘到内存的心路历程 0x00 加载 类的加载本质上是由类加载器将字节码转换为java.lang.Class对象的过程
-除了引导类加载器之外，所有的类加载器都有一个父类加载器
-每一层的类加载器在收到加载请求之后， &hellip;">
+	<meta name="description" content="Feb 2nd, 2015 android笔记, 性能优化, Comments Alpha的秘密 Google 最近搞了个Android Performance Patterns， 挺好的，光这个名字，就已经给整个社区很好的定位了。其实性能优化这档子事吧，android 社区从来就有。只不过， &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -88,6 +86,59 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner">
 <div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-02T21:08:00+08:00" data-updated="true" itemprop="datePublished">Feb 2<span>nd</span>, 2015</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>, <a class='category' href='/blog/categories/xing-neng-you-hua/'>性能优化,</a>
+
+
+</div>
+		
+		
+          <span class="comments"><a href="/blog/2015/02/02/the-secret-of-alpha/#comments">Comments</a></span>
+         
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2015/02/02/the-secret-of-alpha/" itemprop="url">Alpha的秘密</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>Google 最近搞了个<a href="https://plus.google.com/u/1/communities/116342551728637785407">Android Performance Patterns</a>， 挺好的，光这个名字，就已经给整个社区很好的定位了。其实<strong>性能优化</strong>这档子事吧，android 社区从来就有。只不过，从前都是只言片语，大伙也只能各自摸着石头过河。这一次Google不但在G+上搞了这个讨论区，还以“Patterns”的形式推出了<a href="https://www.youtube.com/playlist?list=PLOU2XLYxmsIKEOXh5TwZEv89aofHzNCiu">一套指导视频</a>，从渲染、内存、电池三大方面剖析了性能优化的方法、工具以及一些小的技巧。这一系列的动作，引发了各界不小的反应，我还看到有国内的开发者把这套视频翻译为&#8221;<a href="http://hukai.me/android-performance-patterns/">android性能优化典范</a>&ldquo;，着实给力呢。</p>
+
+<p>既然有了这么好的氛围，这个博客也打算凑凑热闹，帮忙翻译、整理一些和性能优化有关的Tips。你可能不敢相信，一个简单的优化步骤能带来多大的性能提升？！让我们先看一张图：</p>
+
+<p><img class="center" src="/images/201502/alpha_contrast.png"></p>
+
+<p>如果你已经看过<a href="https://www.youtube.com/watch?v=VzYkVL1n4M8&amp;list=PLWz5rJ2EKKc9CBxr3BVjPTPoDPLdPIFCE&amp;index=4">Profile GPU Rendering</a> 的介绍，一定会被这幅对比图惊艳到。仅仅是一个<code>alpha</code> 属性的设置，两者的渲染性能差别如此之大。据<a href="https://plus.google.com/113735310430199015092">Roamn Nurik</a> 介绍<code>view</code>的alpha属性在合成之前需要放到屏幕外的缓冲区中作额外的渲染工作。但，如果只对<code>textcolor</code>作<code>alpha</code>属性的设置，<strong>渲染性能立刻提升了10倍</strong>。</p>
+
+<p>与之类似，在<code>TextView</code>中使用<code>background set</code>,<code>Spannable text</code>以及让文字被选中，都会加重渲染的负担。了解渲染负担并合理的避免，应该才是性能优化的王道。</p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="https://plus.google.com/u/1/+AndroidDevelopers/posts/3p3dHBszKvo">improving performance by switching from view alpha to text color alpha</a></li>
+</ul>
+
+
+		
+		
+	</div>
+
+</article>
 
 
     <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
@@ -239,85 +290,6 @@
 <h2>0x01 addr2line以及objdump</h2>
 
 <p>对于有经验的程序员来说，可能更熟悉这2款工具。方法类似，结果相同，所以这里就不再赘述了。</p>
-
-		
-		
-	</div>
-
-</article>
-
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-11-11T15:15:00+08:00" data-updated="true" itemprop="datePublished">Nov 11<span>th</span>, 2014</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
-
-
-</div>
-		
-		
-          <span class="comments"><a href="/blog/2014/11/11/failed-binder-transaction/#comments">Comments</a></span>
-         
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2014/11/11/failed-binder-transaction/" itemprop="url">蛋疼的BUG：binder事务异常</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<p>一句log&#8221;<strong>!!! FAILED BINDER TRANSACTION !!!</strong>&ldquo;，伴随着App的崩溃，留下的是程序员深深的思考。定位到android 的源码，此log 出自<code>android_util_Binder.cpp</code>。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">signalExceptionForError</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">obj</span><span class="p">,</span> <span class="n">status_t</span> <span class="n">err</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">canThrowRemoteException</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">switch</span> <span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="p">...</span>
-</span><span class='line'>        <span class="k">case</span> <span class="nl">FAILED_TRANSACTION:</span>
-</span><span class='line'>            <span class="n">ALOGE</span><span class="p">(</span><span class="s">&quot;!!! FAILED BINDER TRANSACTION !!!&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="c1">// TransactionTooLargeException is a checked exception, only throw from certain methods.</span>
-</span><span class='line'>            <span class="c1">// FIXME: Transaction too large is the most common reason for FAILED_TRANSACTION</span>
-</span><span class='line'>            <span class="c1">//        but it is not the only one.  The Binder driver can return BR_FAILED_REPLY</span>
-</span><span class='line'>            <span class="c1">//        for other reasons also, such as if the transaction is malformed or</span>
-</span><span class='line'>            <span class="c1">//        refers to an FD that has been closed.  We should change the driver</span>
-</span><span class='line'>            <span class="c1">//        to enable us to distinguish these cases in the future.</span>
-</span><span class='line'>            <span class="n">jniThrowException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">canThrowRemoteException</span><span class="o">?</span> <span class="s">&quot;android/os/TransactionTooLargeException&quot;</span><span class="o">:</span> <span class="s">&quot;java/lang/RuntimeException&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">...</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>很明显，按照注释的描述，我们遇到的问题就转换为了<code>TransactionTooLargeException</code>引起的程序崩溃了。去<a href="http://developer.android.com/reference/android/os/TransactionTooLargeException.html">官网</a>一查，它给出的说明更清晰：远程调用的时候，参数和返回值都以Parcel 的形式保存在<strong>Binder 事务的缓存对象</strong>中。如果参数或返回值过大，则会抛出<code>TransactionTooLargeException</code>异常。</p>
-
-<p>按照这个提示，我跟到驱动层的<code>binder.c</code>的<a href="https://android.googlesource.com/kernel/common.git/+/android-2.6.39/drivers/staging/android/binder.c">代码</a>看了一下<code>binder_transaction</code>以及<code>binder_alloc_buf</code>方法，证实了前面注释代码所言非虚。另外，官方文档提到了一个1M 大小的buffer空间的限制，我翻了几个版本的代码来看，发现其实这个数值并没有写死。buffer 应该是不大于2M而不是它说的1M，但正如文档所说，由于binder 被所有跨进程通讯所共享，即使你的parcel 不大，但是使用binder 的人很多，也有可能造成上述异常。所以，这里解决问题的方法，应该是尽可能的传递小一点的parcel或者使用其他数据通讯方案。是的，说的就是你，不要用binder 传那么多那么大的高清图片了！</p>
 
 		
 		

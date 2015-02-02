@@ -5,12 +5,12 @@
 
 <head>
 	<meta charset="utf-8">
-	<title>Categories - 邵明博</title>
+	<title>Alpha的秘密 - 邵明博</title>
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content=" 读书笔记 [ 1 ] 胡思乱想 [ 1 ] Android笔记 [ 13 ] 码农工具 [ 3 ] 摄影 [ 1 ] Java笔记 [ 1 ] 性能优化, [ 1 ] ">
-	
+	<meta name="description" content="本文介绍了一个关于alpha的优化渲染性能的小技巧。">
+	<meta name="keywords" content="alpha, 性能优化, 渲染">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -19,7 +19,7 @@
 
 	<link href="/atom.xml" rel="alternate" title="邵明博" type="application/atom+xml">
 	
-	<link rel="canonical" href="http://mingbo.de/blog/categories/">
+	<link rel="canonical" href="http://mingbo.de/blog/2015/02/02/the-secret-of-alpha/">
 	<link href="/favicon.png" rel="shortcut icon">
 	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
 	<link href="/stylesheets/font-awesome.min.css" media="screen, projection" rel="stylesheet" type="text/css">
@@ -84,29 +84,26 @@
 				
 			
 			<div class="mid-col-container">
-				<div id="content" class="inner"><article class="page">
-    
-    <h1 class="title">Categories</h1>
-    
-    <div class="entry-content"><ul>
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">Alpha的秘密</h1>
+	<div class="entry-content" itemprop="articleBody"><p>Google 最近搞了个<a href="https://plus.google.com/u/1/communities/116342551728637785407">Android Performance Patterns</a>， 挺好的，光这个名字，就已经给整个社区很好的定位了。其实<strong>性能优化</strong>这档子事吧，android 社区从来就有。只不过，从前都是只言片语，大伙也只能各自摸着石头过河。这一次Google不但在G+上搞了这个讨论区，还以“Patterns”的形式推出了<a href="https://www.youtube.com/playlist?list=PLOU2XLYxmsIKEOXh5TwZEv89aofHzNCiu">一套指导视频</a>，从渲染、内存、电池三大方面剖析了性能优化的方法、工具以及一些小的技巧。这一系列的动作，引发了各界不小的反应，我还看到有国内的开发者把这套视频翻译为&#8221;<a href="http://hukai.me/android-performance-patterns/">android性能优化典范</a>&ldquo;，着实给力呢。</p>
 
-    <li><a href="/blog/categories/读书笔记/">读书笔记</a> [ 1 ]</li>
+<p>既然有了这么好的氛围，这个博客也打算凑凑热闹，帮忙翻译、整理一些和性能优化有关的Tips。你可能不敢相信，一个简单的优化步骤能带来多大的性能提升？！让我们先看一张图：</p>
 
-    <li><a href="/blog/categories/胡思乱想/">胡思乱想</a> [ 1 ]</li>
+<p><img class="center" src="/images/201502/alpha_contrast.png"></p>
 
-    <li><a href="/blog/categories/android笔记/">Android笔记</a> [ 13 ]</li>
+<p>如果你已经看过<a href="https://www.youtube.com/watch?v=VzYkVL1n4M8&amp;list=PLWz5rJ2EKKc9CBxr3BVjPTPoDPLdPIFCE&amp;index=4">Profile GPU Rendering</a> 的介绍，一定会被这幅对比图惊艳到。仅仅是一个<code>alpha</code> 属性的设置，两者的渲染性能差别如此之大。据<a href="https://plus.google.com/113735310430199015092">Roamn Nurik</a> 介绍<code>view</code>的alpha属性在合成之前需要放到屏幕外的缓冲区中作额外的渲染工作。但，如果只对<code>textcolor</code>作<code>alpha</code>属性的设置，<strong>渲染性能立刻提升了10倍</strong>。</p>
 
-    <li><a href="/blog/categories/码农工具/">码农工具</a> [ 3 ]</li>
+<p>与之类似，在<code>TextView</code>中使用<code>background set</code>,<code>Spannable text</code>以及让文字被选中，都会加重渲染的负担。了解渲染负担并合理的避免，应该才是性能优化的王道。</p>
 
-    <li><a href="/blog/categories/摄影/">摄影</a> [ 1 ]</li>
+<h2>参考资料</h2>
 
-    <li><a href="/blog/categories/java笔记/">Java笔记</a> [ 1 ]</li>
-
-    <li><a href="/blog/categories/性能优化,/">性能优化,</a> [ 1 ]</li>
-
+<ul>
+<li><a href="https://plus.google.com/u/1/+AndroidDevelopers/posts/3p3dHBszKvo">improving performance by switching from view alpha to text color alpha</a></li>
 </ul>
 
 </div>
+
 </article>
 
 
@@ -127,7 +124,6 @@ var duoshuoQuery = {short_name:"shaomingbo"};
 	</script>
 <!-- Duoshuo Comment END --></div>
   </section>
-
 </div>
 			</div>
 			<footer id="footer" class="inner">Copyright &copy; 2015

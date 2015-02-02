@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android笔记 | 邵明博]]></title>
   <link href="http://mingbo.de/blog/categories/androidbi-ji/atom.xml" rel="self"/>
   <link href="http://mingbo.de/"/>
-  <updated>2015-01-28T21:48:15+08:00</updated>
+  <updated>2015-02-02T21:21:35+08:00</updated>
   <id>http://mingbo.de/</id>
   <author>
     <name><![CDATA[邵明博]]></name>
@@ -12,6 +12,30 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Alpha的秘密]]></title>
+    <link href="http://mingbo.de/blog/2015/02/02/the-secret-of-alpha/"/>
+    <updated>2015-02-02T21:08:00+08:00</updated>
+    <id>http://mingbo.de/blog/2015/02/02/the-secret-of-alpha</id>
+    <content type="html"><![CDATA[<p>Google 最近搞了个<a href="https://plus.google.com/u/1/communities/116342551728637785407">Android Performance Patterns</a>， 挺好的，光这个名字，就已经给整个社区很好的定位了。其实<strong>性能优化</strong>这档子事吧，android 社区从来就有。只不过，从前都是只言片语，大伙也只能各自摸着石头过河。这一次Google不但在G+上搞了这个讨论区，还以“Patterns”的形式推出了<a href="https://www.youtube.com/playlist?list=PLOU2XLYxmsIKEOXh5TwZEv89aofHzNCiu">一套指导视频</a>，从渲染、内存、电池三大方面剖析了性能优化的方法、工具以及一些小的技巧。这一系列的动作，引发了各界不小的反应，我还看到有国内的开发者把这套视频翻译为"<a href="http://hukai.me/android-performance-patterns/">android性能优化典范</a>&ldquo;，着实给力呢。</p>
+
+<p>既然有了这么好的氛围，这个博客也打算凑凑热闹，帮忙翻译、整理一些和性能优化有关的Tips。你可能不敢相信，一个简单的优化步骤能带来多大的性能提升？！让我们先看一张图：</p>
+
+<p><img class="center" src="/images/201502/alpha_contrast.png"></p>
+
+<p>如果你已经看过<a href="https://www.youtube.com/watch?v=VzYkVL1n4M8&amp;list=PLWz5rJ2EKKc9CBxr3BVjPTPoDPLdPIFCE&amp;index=4">Profile GPU Rendering</a> 的介绍，一定会被这幅对比图惊艳到。仅仅是一个<code>alpha</code> 属性的设置，两者的渲染性能差别如此之大。据<a href="https://plus.google.com/113735310430199015092">Roamn Nurik</a> 介绍<code>view</code>的alpha属性在合成之前需要放到屏幕外的缓冲区中作额外的渲染工作。但，如果只对<code>textcolor</code>作<code>alpha</code>属性的设置，<strong>渲染性能立刻提升了10倍</strong>。</p>
+
+<p>与之类似，在<code>TextView</code>中使用<code>background set</code>,<code>Spannable text</code>以及让文字被选中，都会加重渲染的负担。了解渲染负担并合理的避免，应该才是性能优化的王道。</p>
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="https://plus.google.com/u/1/+AndroidDevelopers/posts/3p3dHBszKvo">improving performance by switching from view alpha to text color alpha</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[定位Native异常]]></title>
@@ -214,77 +238,6 @@ sudo apt-get install git gnupg flex bison gperf build-essential \
 
 <ul>
 <li><a href="https://wiki.ubuntu.com/Kernel/LTSEnablementStack">LTS Enablement Stacks</a></li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[android数据库升级tips]]></title>
-    <link href="http://mingbo.de/blog/2014/10/16/a-strategy-for-upgrade-database-in-android/"/>
-    <updated>2014-10-16T22:18:00+08:00</updated>
-    <id>http://mingbo.de/blog/2014/10/16/a-strategy-for-upgrade-database-in-android</id>
-    <content type="html"><![CDATA[<h3>唯一不变的是变化</h3>
-
-<p>App 版本迭代的过程中，一定会遇到sqlite 数据库需要升级的情况。一个简单粗暴的解决方法，是不顾用户的数据，直接去重建各个数据表。显然，今天要分享的并不是这个粗暴的方法。</p>
-
-<h3>常见的困惑</h3>
-
-<p><code>SQLiteOpenHelper</code>提供了一个处理数据库升级的API<code>onUpgrade(final SQLiteDatabase db, int from, final int to)</code>。从语义上来看，升级策略的描述应该有一个起始点<code>from</code>，也还应该有一个终点<code>to</code>。但由于起始点的不确定性，致使这里的代码分支会略显复杂。老实讲，在写这篇日志之前，我都没有把握温柔细致的处理好这件事。</p>
-
-<h3>灵感来源于android源码</h3>
-
-<p><code>DownloadManager</code>也使用数据库存储下载状态。其子类<code>DatabaseHelper</code>将升级函数降维，把原本复杂的升级过程，分解为多个原子的升级过程，而这个原子过程是简单、确定的。直接上代码吧：</p>
-
-<p>```java
-@Override
- public void onUpgrade(final SQLiteDatabase db, int oldV, final int newV) {</p>
-
-<pre><code>...
-//循环体内，每次只升一个版本
-for (int version = oldV + 1; version &lt;= newV; version++) {
-            upgradeTo(db, version);
-}
-</code></pre>
-
-<p>}</p>
-
-<p>```</p>
-
-<p>```java</p>
-
-<p>//Upgrade database from (version &ndash; 1) to version.
-private void upgradeTo(SQLiteDatabase db, int version) {</p>
-
-<pre><code>switch (version) {
-    case 100:
-        createDownloadsTable(db);
-        break;
-    case 101:
-        createHeadersTable(db);
-        break;
-    case 102:
-        addColumn(db, DB_TABLE, Downloads.Impl.COLUMN_IS_PUBLIC_API,
-                          "INTEGER NOT NULL DEFAULT 0");
-        break;
-    case 105:
-        fillNullValues(db);
-        break;
-    ...
-    default:
-        throw new IllegalStateException("Don't know how to upgrade to " + version);
-    }
-</code></pre>
-
-<p>}
-```</p>
-
-<p>以上代码不仅逻辑清晰，而且还能很好的复用。比如在<code>onCreate</code>函数里需要初始化数，就可以直接调用<code>upgradeTo(db, CURRENT_VERSION)</code>.这样一来，无论是从哪个版本升级上来，都能平滑的处理版本问题了。</p>
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="https://android.googlesource.com/platform/packages/providers/DownloadProvider/+/master/src/com/android/providers/downloads/DownloadProvider.java#228">DownloadProvider</a></li>
 </ul>
 
 ]]></content>
