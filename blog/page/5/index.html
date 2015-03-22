@@ -9,7 +9,7 @@
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content="Dec 3rd, 2013 android笔记 Comments Android无线调试 使用无线调试对于我来讲，只有一个理由：爱惜手机电池。长时间的调试过程，使得我们的爱机必须通过USB 与电脑相连。长此以往，手机电池就会变得非常不经用。 很早之前，以为只有获得ROOT &hellip;">
+	<meta name="description" content="Dec 23rd, 2013 码农工具 Comments Git 常用命令复习 最近打算对帝傲狮进行重构，觉得应该是时候启用版本控制工具来管理代码了。想当初为了学习这个，我还专门看了几天的《Git版本控制管理》，可是长期在公司使用clearcase，现在我连它长什么样都记不起来了-_&ndash &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -86,6 +86,250 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner">
 <div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-23T11:13:00+08:00" data-updated="true" itemprop="datePublished">Dec 23<span>rd</span>, 2013</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/ma-nong-gong-ju/'>码农工具</a>
+
+
+</div>
+		
+		
+          <span class="comments"><a href="/blog/2013/12/23/git-revise/#comments">Comments</a></span>
+         
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2013/12/23/git-revise/" itemprop="url">Git 常用命令复习</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>最近打算对<a href="/soulsaunter">帝傲狮</a>进行重构，觉得应该是时候启用版本控制工具来管理代码了。想当初为了学习这个，我还专门看了几天的<a href="http://book.douban.com/subject/5311565/">《Git版本控制管理》</a>，可是长期在公司使用clearcase，现在我连它长什么样都记不起来了-_&ndash;# 。悔恨当初做的笔记太渣，现在重新把书啃一遍那基本上又不太现实。好在这两年网上积累了好多有关的优秀资源，以下便是我这两天通过学习&amp;使用这些网络资源而整理的<strong>git 常用命令</strong>的使用说明</p>
+
+<h3>git clone</h3>
+
+<ol>
+<li>clone 操作将会复制一个已经存在的git仓库</li>
+<li>clone 操作会自动的创建一个名叫<code>origin</code>的远程连接指向原始的仓库</li>
+<li>This makes collaborating with Git fundamentally different than with SVN</li>
+</ol>
+
+
+<h3>git config</h3>
+
+<ol>
+<li><code>git config user.name</code>设置用户名</li>
+<li><code>git config user.email</code>设置电子邮箱</li>
+<li>默认情况下是对当前仓库进行设置，加上<code>--global</code>标签之后，则为全局设置</li>
+</ol>
+
+
+<h3>git add</h3>
+
+<ol>
+<li>直到运行<code>git commit</code>之前，<code>git add</code>并没有直接影响仓库</li>
+<li><code>git add &lt;file&gt;</code>stage 单个文件的改变</li>
+<li><code>git add &lt;directory&gt;</code>stage 整个目录的改变</li>
+<li><code>git add -p</code>交互式的add</li>
+</ol>
+
+
+<h3>git commit</h3>
+
+<ol>
+<li>将处于stage 状态的该表保存到仓库</li>
+<li><code>git commit -a</code>会将工作区的所有改变保存到仓库</li>
+<li> 除非你真的准备好了，否则git 不会强迫你与中心仓库记性交互</li>
+<li> 就像stage 空间是工作目录与代码仓库之间的缓存一样，本地仓库是开发者的代码贡献与中心仓库之间的缓存</li>
+<li> <code>git commit --amend</code>修改之前的commit。这将导致当前的stage区间与前一个commit的状态融合。</li>
+<li> 和<code>git reset</code>一样，<code>git commit --amend</code>不应该发生在发布后的<code>&lt;commit&gt;</code>上。</li>
+<li> <code>--no-edit</code>可以使<code>git commit --amend</code>使用上一次commit的注释</li>
+</ol>
+
+
+<h3>git status</h3>
+
+<p>用来显示工作区的状态</p>
+
+<h3>git log</h3>
+
+<ol>
+<li>该命令被用来显示commit 历史</li>
+<li><code>git log</code>将使用默认格式显示，通常会输出多于一屏的内容。使用空格翻页，使用<code>q</code>退出。</li>
+<li><code>git log -n &lt;limit&gt;</code>限制输出的条数</li>
+<li><code>git log -oneline</code>高度抽象概括提交情况</li>
+<li><code>git log --stat</code>同时呈现相关文件、相关行的信息</li>
+<li><code>git log --author=&lt;pattern&gt;</code>搜索指定作者的commit。pattern可以是包含正则表达式的字符串</li>
+<li><code>git log &lt;since&gt;..&lt;until&gt;</code>搜索两者之间的commit。since、until既可以是commitID,也可以是branchName或者是其他的<a href="http://www.kernel.org/pub/software/scm/git/docs/gitrevisions.html">reference</a></li>
+<li><code>git log &lt;file&gt;</code>查看指定文件的提交情况</li>
+<li><code>git log --graph --decorate ﻿--oneline</code>&mdash;graph 顾名思义，用来图形化提交状态；——decorate用来显示分支或者便签的名称；</li>
+</ol>
+
+
+<h3>git checkout</h3>
+
+<ol>
+<li>该命令有三种功能：检出file，检出commit，检出branch</li>
+<li><code>git checkout &lt;existing-branch&gt;</code>更新本地仓库与<code>&lt;exsiting-branch&gt;</code>匹配，之后的操作都将记录到该分支上。检出分支后，不必担心之前的最新代码会遭到污染，任何改变如果没有<code>commit</code>，只存在于stage状态</li>
+<li><code>git checkout &lt;commit&gt;</code>检出commit。会使得工作目录的所有代码变成该commit的状态(<code>&lt;commit&gt;</code>可以为commit hash或者是tag)。检出一个旧的commit，并不会造成代码丢失，开发状态将会变为<code>detached HEAD</code>。值得注意的是，开发应当发生在真正的分支上，否则代码融合的时候会遇到不小的麻烦。</li>
+<li><code>git checkout &lt;commit&gt; &lt;file&gt;</code>检出文件。和之前的检出不同，这种检出会影响到当前工程，使得该文件的状态变为<strong>Change to be committed</strong>,若希望还原回主线状态，应使用<code>git checkout HEAD &lt;file&gt;</code></li>
+<li><code>git checkout -b &lt;new-branch&gt;</code>创建分支，并切换到该分支去</li>
+<li><code>git checkout -b &lt;new-branch&gt; &lt;exsiting-branch&gt;</code>与上条一样，不过创建的分支是基于&lt;existing-branch>，而不是当前分支</li>
+</ol>
+
+
+<h3>git revert</h3>
+
+<ol>
+<li>作为undo 操作存在</li>
+<li>并没有删除任何commit 结点，而是将之前的结点append 到HEAD</li>
+<li>比reset 更安全</li>
+</ol>
+
+
+<h3>git reset</h3>
+
+<ol>
+<li>是一个可能影响仓库安全的命令</li>
+<li>和<code>git checkout</code>一样，根据目的不同，有多种用法</li>
+<li><code>git reset &lt;file&gt;</code>清除该文件的stage状态，保留工作区间的文件状态</li>
+<li><code>git reset</code>将stage恢复到最近一次提交，保留工作区间的文件状态</li>
+<li><code>git reset --hard</code>将stage和工作区间的文件都恢复到最近一次提交</li>
+<li><code>git reset &lt;commit&gt;</code>将stage恢复到<commit>的状态，保留工作区间的状态，以便re-commit的时候有一个更干净的stage</li>
+<li><code>git reset --hard &lt;commit&gt;</code>将stage和工作区间的文件恢复到<commit>状态</li>
+<li>需要注意的是：如果<commit>之后的仓库被发布过，那么你不应该使用<code>git reset --hard &lt;commit&gt;</code>，因为有可能其他开发者对这个<code>&lt;commit&gt;</code>及之后的代码有依赖</li>
+</ol>
+
+
+<h3>git clean</h3>
+
+<ol>
+<li>该命令通常和<code>git reset --hard</code>一起使用</li>
+<li>主要目的是用来删除工作区间里没有被追踪的文件</li>
+<li><code>git clean -n</code>并不会真正执行清除，而是告诉你将会清除哪里文件</li>
+<li><code>git clean -f</code>将会清理当前文件夹下的未被跟踪的文件，但并不会清理文件夹以及<code>.gitignore</code>中提及的文件</li>
+<li><code>git clean -df</code>清理当前文件夹下的未被跟踪的文件和目录</li>
+<li><code>git clean -xf</code>清理当前文件夹下的未被跟踪的文件以及那些git 通常忽略的文件</li>
+</ol>
+
+
+<h3>git branch</h3>
+
+<ol>
+<li>每一个branch都可以看做是独立的开发流水线，是上述所有操作组合形成的抽象引用</li>
+<li><code>git branch</code>支持创建，罗列，删除以及重命名操作，通常需要配合<code>git checkout</code>进行分支切换，配合<code>git merge</code>进行代码融合</li>
+<li>分支不仅可以使开发任务并行，还可以保证主线代码永远处于可用状态</li>
+<li><code>git branch</code>罗列当前仓库中所有的分支，带上<code>-r</code>可以罗列远程分支</li>
+<li><code>git branch &lt;branch-name&gt;</code>创建分支，但并没有切换过去</li>
+<li><code>git branch -d &lt;branch-name&gt;</code>如果代码已经merge回主线，则安全的删除该分支，否则给予警告，且不执行删除操作</li>
+<li><code>git branch -D &lt;branch-name&gt;</code>强行删除分支</li>
+<li><code>git branch -m &lt;branch-name&gt;</code>修改当前分支的名字</li>
+</ol>
+
+
+<h3>git merge</h3>
+
+<ol>
+<li>通常来说merge 有两种算法来执行：<code>fast-foward merge</code>以及<code>3-way merge</code></li>
+<li>当前分支与目标分支之间是<strong>linear path</strong>，则执行<code>fast-forwad merge</code>，如图1所示，git 只需要将当前分支的HEAD移过来即可（不走回头路）</li>
+<li>如果当前分支与目标分支之间有分叉,如图2所示，则执行<code>3-way merge</code>。</li>
+<li>git 使用<code>edit/stage/commit</code>的工作流程来解决merge 冲突：使用edit来解决冲突，使用add 来闭合修改，使用commit 来完成merge</li>
+</ol>
+
+
+<h3>git rebase</h3>
+
+<ol>
+<li><code>git rebase &lt;base&gt;</code>将当前分支rebase为<code>&lt;base&gt;</code>，其中<code>&lt;base&gt;</code>可以为commit、tag或者是分支名称</li>
+<li>使用rebase主要目的是保持项目仓库的linear状态，以便分支融合的时候可以使用<code>fast-forward merge</code></li>
+<li>和<code>git reset</code>一样，不要对以发布的仓库部分执行rebase</li>
+<li><code>git rebase -i</code>以交互的形式进行rebase</li>
+</ol>
+
+
+<h3>git remote</h3>
+
+<ol>
+<li>该命令可以让你创建、查看、删除与其他仓库的连接，这些连接更像是一个个书签</li>
+<li><code>git remote</code>呈现你的所有连接</li>
+<li><code>git remote -v</code>和上一条命令一样，但是要多显示URL</li>
+<li><code>git remote add &lt;name&gt; &lt;url&gt;</code>创建一个连接，在此之后，可以直接使用<code>&lt;name&gt;</code>来访问这个连接了</li>
+<li><code>git remote rm &lt;name&gt;</code>删除这个连接</li>
+<li><code>git remote rename &lt;old-name&gt; &lt;new-name&gt;</code>修改连接名称</li>
+</ol>
+
+
+<h3>git fetch</h3>
+
+<ol>
+<li><code>git fetch &lt;remote&gt;</code>将该连接的所有分支全部导入本地</li>
+<li><code>git fetch &lt;remote&gt; &lt;branch&gt;</code>仅导入该连接的特定分支</li>
+<li>我们可以checkout 远程分支，但此刻会处于一个HEAD detached状态；可以想象这些远程分支为只读的，我们能做的是review他们的代码以及<strong>merge</strong>到我们的本地分支上来</li>
+</ol>
+
+
+<h3>git pull</h3>
+
+<ol>
+<li><code>git pull &lt;remote&gt;</code>将该连接的当前分支导入本地，并进行融合操作</li>
+<li><code>git pull --rebase &lt;remote&gt;</code>和上述操作效果一样，但使用rebase而不是融合</li>
+<li><code>git pull</code>与SVN的<code>update</code>类似，作用都是保持本地代码最新</li>
+<li><code>--rebase</code>可以避免不要的merge操作</li>
+<li>使用<code>git config --global branch.autosetuprebase always</code>将pull的默认动作设置为rebase</li>
+</ol>
+
+
+<h3>git push</h3>
+
+<ol>
+<li><code>git push &lt;remote&gt; &lt;branch&gt;</code>将<branch>推送到远程仓库去。如果本地仓库和远程仓库之间的代码不能执行<code>fast-forward merge</code>，则git 会拒绝该次推送</li>
+<li><code>git push &lt;remote&gt; --force</code>和上一条效果一样，只不过会强制执行</li>
+<li><code>git push &lt;remote&gt; --tags</code>将本地标签全部推送到远程仓库去</li>
+</ol>
+
+
+<h2>参考资料</h2>
+
+<ul>
+<li><a href="https://www.atlassian.com/git/tutorial/">Git Tutorials</a></li>
+<li><a href="http://pcottle.github.io/learnGitBranching/">Learn git branching</a></li>
+</ul>
+
+
+<h2>附图</h2>
+
+<ul>
+<li>图1 a fast-forward merge</li>
+</ul>
+
+
+<p><img src="/images/20131223/git-revise-merge-fast-forward.png" alt="fast-forward merge 示意图" /></p>
+
+<ul>
+<li>图2 a 3-way merge</li>
+</ul>
+
+
+<p><img src="/images/20131223/git-revise-merge-three-way.png" alt="3-way merge 示意图" /></p>
+
+		
+		
+	</div>
+
+</article>
 
 
     <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
@@ -258,78 +502,6 @@
 <ul>
 <li><a href="https://developer.android.com/guide/components/processes-and-threads.html">Processes and Threads</a></li>
 <li><a href="https://developer.android.com/guide/topics/manifest/activity-element.html#multi">activity属性</a></li>
-</ul>
-
-
-		
-		
-	</div>
-
-</article>
-
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-08T14:48:00+08:00" data-updated="true" itemprop="datePublished">Nov 8<span>th</span>, 2013</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
-
-
-</div>
-		
-		
-          <span class="comments"><a href="/blog/2013/11/08/how-android-draws-views/#comments">Comments</a></span>
-         
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2013/11/08/how-android-draws-views/" itemprop="url">视图的绘制</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<p>在<a href="http://mingbo.de/blog/2013/11/04/listview-re-getview/">《Listview 子控件重复加载》</a>中谈到了<code>onMeasure()</code>方法，谈到了layout，但更细致的内容没有提到。这里找了一下相关资料来补充：</p>
-
-<ul>
-<li>绘制过程是一个控件树遍历的过程，从根控件开始</li>
-<li><code>ViewGroup</code>负责通知它的子视图，<code>View</code>负责自绘，按照顺序，父视图先于子视图绘制</li>
-<li>绘制实际上是2个自顶向下的过程：measure 和layout。</li>
-<li>经过measure 之后，每个<code>View</code>都会保存自己的尺寸，而在layout 过程中父视图会使用这些尺寸来摆放子视图</li>
-<li><code>View</code>对象的高宽会受到父视图的限制，以保证整个视图的正常显示</li>
-<li>父视图会<strong>多次调用子视图的measure方法</strong>。比如：父视图会先计算不受约束的情况下，子视图的大小；如果子视图过大或者过小，父视图都会指定一个具体的值</li>
-<li>Measure 过程还会涉及<code>ViewGroup.LayoutParams</code>以及<code>MeasureSpec</code>的设置</li>
-<li><code>ViewGroup.LayoutParams</code>被View 对象用来告诉其父控件，自己想如何被计算以及摆放，最基本的是指定长宽：
-
-<ol>
-<li>MATCH_PARENT, which means the View wants to be as big as its parent (minus padding)</li>
-<li>WRAP_CONTENT, which means that the View wants to be just big enough to enclose its content (plus padding).</li>
-<li>具体数值</li>
-</ol>
-</li>
-<li>MeasureSpec 指定一种计算模式：
-
-<ol>
-<li>UNSPECIFIED: This is used by a parent to determine the desired dimension of a child View.</li>
-<li>EXACTLY: This is used by the parent to impose an exact size on the child.</li>
-<li>AT MOST: This is used by the parent to impose a maximum size on the child.</li>
-</ol>
-</li>
-</ul>
-
-
-<h2>参考资料</h2>
-
-<ul>
-<li><a href="https://developer.android.com/guide/topics/ui/how-android-draws.html">How Android Draws Views</a></li>
 </ul>
 
 

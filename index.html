@@ -9,7 +9,10 @@
 	<meta name="author" content="邵明博">
 
 	
-	<meta name="description" content="Feb 2nd, 2015 android笔记, 性能优化, Comments Alpha的秘密 Google 最近搞了个Android Performance Patterns， 挺好的，光这个名字，就已经给整个社区很好的定位了。其实性能优化这档子事吧，android 社区从来就有。只不过， &hellip;">
+	<meta name="description" content="Mar 22nd, 2015 读书笔记 Comments 《富爸爸，穷爸爸》读书笔记 最近在整理Evernote，看到当年读这本书的一些笔记。 富人买入资产，穷人只有支出，中产买入他们以为是资产的负债
+资产的类别： 不需要我到场就能运作的业务
+股票、基金、债券
+可以产生收入的房地产 &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -86,6 +89,62 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner">
 <div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-22T13:44:00+08:00" data-updated="true" itemprop="datePublished">Mar 22<span>nd</span>, 2015</time></div>
+		<div class="tags">
+
+
+	<a class='category' href='/blog/categories/du-shu-bi-ji/'>读书笔记</a>
+
+
+</div>
+		
+		
+          <span class="comments"><a href="/blog/2015/03/22/note-of-rich-dad-poor-dad/#comments">Comments</a></span>
+         
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2015/03/22/note-of-rich-dad-poor-dad/" itemprop="url">《富爸爸，穷爸爸》读书笔记</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>最近在整理Evernote，看到当年读这本书的一些笔记。</p>
+
+<ul>
+<li>富人买入资产，穷人只有支出，中产买入他们以为是资产的负债</li>
+<li>资产的类别：
+
+<ul>
+<li>不需要我到场就能运作的业务</li>
+<li>股票、基金、债券</li>
+<li>可以产生收入的房地产</li>
+<li>其他可以产生收入且市场流通性好的东西</li>
+</ul>
+</li>
+<li>找到一个超现实的理由：想要与不想要的结合体</li>
+<li>每天做出自己的选择：使用我们的时间、金钱以及头脑里的知识来实现目标</li>
+<li>掌握一种模式，然后再学习一种新的模式：并不要求你学太多，（因为你学到的时候，这个东西基本上就已经过时了)而在于你<strong>学得有多快</strong>！</li>
+<li>自律，可以增强上述所有功能</li>
+</ul>
+
+
+		
+		
+	</div>
+
+</article>
 
 
     <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
@@ -250,54 +309,6 @@
 <li><a href="http://computerdragon.blog.51cto.com/6235984/1223354">Java虚拟机类加载机制浅谈</a></li>
 </ul>
 
-
-		
-		
-	</div>
-
-</article>
-
-
-    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
-	<div class="meta">
-		<div class="date">
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-01-26T21:08:00+08:00" data-updated="true" itemprop="datePublished">Jan 26<span>th</span>, 2015</time></div>
-		<div class="tags">
-
-
-	<a class='category' href='/blog/categories/androidbi-ji/'>android笔记</a>
-
-
-</div>
-		
-		
-          <span class="comments"><a href="/blog/2015/01/26/how-to-locate-the-native-exception/#comments">Comments</a></span>
-         
-	</div>
-	<h1 class="title" itemprop="name"><a href="/blog/2015/01/26/how-to-locate-the-native-exception/" itemprop="url">定位Native异常</a></h1>
-	<div class="entry-content" itemprop="articleBody">
-		<h2>0x00 ndk-stack</h2>
-
-<p>Google从<code>NDK r6</code>开始提供这个方便的工具，帮助开发者定位Native 异常。和<code>ndk-build</code>一样，这个命令行工具被放在<code>NDK</code>安装目录下。作为Debug 工具，其操作方法也十分简单：只需在参数里指定包含符号表的<code>so</code>文件即可。</p>
-
-<p>如果需要实时获取异常信息，我们可以直接运行：<code>adb shell logcat | ndk-stack -sym $PROJECT_DIR/obj/local/armeabi</code>；有的时候日志文件并不一定能直接看到，该工具也支持“异步”分析。这里我们首先运行：<code>adb shell logcat &gt; android.log</code>来模拟“异步”获取日志。 在获得日志文件之后，我们拿它喂给命令行工具：<code>ndk-stack -sym $PROJECT_DIR/obj/local/armeabi -dump android.log</code>。</p>
-
-<p>就这样，天书一般的日志文件瞬间变得友好可读了。</p>
-
-<h2>0x01 addr2line以及objdump</h2>
-
-<p>对于有经验的程序员来说，可能更熟悉这2款工具。方法类似，结果相同，所以这里就不再赘述了。</p>
 
 		
 		
